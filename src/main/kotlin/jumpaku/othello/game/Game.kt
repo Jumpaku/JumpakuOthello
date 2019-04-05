@@ -33,21 +33,9 @@ class Game(
             val nD = board.flatMap { it.value.filter { it == Disc.Dark } }.size
             val nL = board.flatMap { it.value.filter { it == Disc.Light } }.size
             return when {
-                listOf(player, opponent).any { board.availablePositions(it).isNotEmpty() } -> WaitingMove(
-                    opponent
-                )
-                nD > nL -> Completed(
-                    Result.WinLose(
-                        Disc.Dark to nD,
-                        Disc.Light to nL
-                    )
-                )
-                nD < nL -> Completed(
-                    Result.WinLose(
-                        Disc.Light to nL,
-                        Disc.Dark to nD
-                    )
-                )
+                listOf(player, opponent).any { board.availablePositions(it).isNotEmpty() } -> WaitingMove(opponent)
+                nD > nL -> Completed(Result.WinLose(Disc.Dark to nD, Disc.Light to nL))
+                nD < nL -> Completed(Result.WinLose(Disc.Light to nL, Disc.Dark to nD))
                 else -> Completed(Result.Tie(nD))
             }
         }
@@ -65,16 +53,15 @@ class Game(
         return when(move) {
             is Move.Pass -> Game(board, state.next(board), history + move)
             is Move.Place -> {
-                val disc = state.player
                 val pos = move.pos
-                require(board.isAvailable(pos, disc)) {"not available $pos"}
-                val b = board.place(move.pos, state.player)
+                require(move in availableMoves) {"not available $pos"}
+                val b = board.place(pos, state.player)
                 Game(b, state.next(b), history + move)
             }
         }
     }
 
-    fun availableMoves(): List<Move> = when(state){
+    val availableMoves: List<Move> = when(state){
         is State.WaitingMove -> {
             val moves = board.availablePositions(state.player).map { Move.Place(it) }
             if (moves.isNotEmpty()) moves else listOf(Move.Pass)
@@ -82,7 +69,7 @@ class Game(
         is State.Completed -> emptyList()
     }
 
-    fun progress(): Int = board.count { it.value.isDefined } - 4
+    val progress: Int = board.count { it.value.isDefined } - 4
 
     fun undo(n: Int): Game {
         require(history.size >= n)

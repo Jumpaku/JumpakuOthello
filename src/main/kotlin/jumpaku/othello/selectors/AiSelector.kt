@@ -19,7 +19,7 @@ class AiSelector : Selector {
                 yield(x)
             }
         }.takeWhile { it < threshold }.count().coerceAtMost(atMost)
-        return when(game.progress()) {
+        return when(game.progress) {
             0 -> 1
             in 1..5 -> 3
             in 6..17 -> estimateDepth(300, 3)
@@ -33,15 +33,12 @@ class AiSelector : Selector {
 
     override fun select(game: Game): Move {
         require(game.state is Game.State.WaitingMove)
-        val ms = game.availableMoves()
+        val ms = game.availableMoves
         if (ms.size == 1) return ms.first()
         val player = game.state.player
         val depth = computeDepth(game)
-        if (depth == 8) {
-            return ms.find { isWinningGame(7, game.move(it), player) }
-                ?.apply { println("AI will win at ${game.progress()}") }
+        if (depth == 8) return ms.find { isWinningGame(7, game.move(it), player) }
                 ?: ms.maxBy { minmax(8, game.move(it), player) }!!
-        }
         return ms.maxBy { minmax(depth, game.move(it), player) }!!
     }
 }
@@ -50,8 +47,8 @@ class AiSelector : Selector {
 fun isWinningGame(depth: Int, game: Game, selectPlayer: Disc): Boolean = depth >= 0 && when (game.state) {
     is Game.State.Completed -> (game.state.result as? Game.Result.WinLose)?.winner?.first == selectPlayer
     is Game.State.WaitingMove -> when (selectPlayer) {
-        game.state.player -> game.availableMoves().any { isWinningGame(depth - 1, game.move(it), selectPlayer) }
-        else -> game.availableMoves().all { isWinningGame(depth - 1, game.move(it), selectPlayer) }
+        game.state.player -> game.availableMoves.any { isWinningGame(depth - 1, game.move(it), selectPlayer) }
+        else -> game.availableMoves.all { isWinningGame(depth - 1, game.move(it), selectPlayer) }
     }
 }
 
@@ -68,7 +65,7 @@ fun minmax(depth: Int, game: Game, selectPlayer: Disc): Int = when (game.state) 
     }
     is Game.State.WaitingMove -> {
         if (depth == 0) Evaluator().evaluate(game, selectPlayer)
-        else game.availableMoves().shuffled(random)
+        else game.availableMoves.shuffled(random)
             .map { minmax(depth - 1, game.move(it), selectPlayer) }
             .run { if (game.state.player == selectPlayer) max() else min() }!!
     }

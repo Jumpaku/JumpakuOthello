@@ -46,7 +46,7 @@ fun main() {
     }
     val ts = listOf(1..25, 26..50, 51..75, 76..100).map { thread { it.forEach(::compute) } }
     ts.forEach { it.join() }
-    println("placed avg : ${placedValueSum/ c}, available avg : ${availableValueSum/ c}")
+    //println("placed avg : ${placedValueSum/ c}, available avg : ${availableValueSum/ c}")
     //println(play(InputSelector(System.`in`), AiSelector(), true))
 }
 

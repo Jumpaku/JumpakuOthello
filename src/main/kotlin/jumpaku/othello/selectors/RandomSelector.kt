@@ -8,6 +8,6 @@ class RandomSelector(val seed: Int = 1089) : Selector {
 
     override fun select(game: Game): Move {
         require(game.state is Game.State.WaitingMove)
-        return game.availableMoves().shuffled(Random(seed)).first()
+        return game.availableMoves.shuffled(Random(seed)).first()
     }
 }

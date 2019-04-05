@@ -13,7 +13,7 @@ class InputSelector(input: InputStream) : Selector {
 
     override fun select(game: Game): Move {
         require(game.state is Game.State.WaitingMove)
-        val ms = game.availableMoves()
+        val ms = game.availableMoves
         if (ms.any { it is Move.Pass }) return Move.Pass
         while (true) {
             val l = scanner.nextLine()
