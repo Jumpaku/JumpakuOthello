@@ -76,51 +76,55 @@ class Board(discs: Map<Pos, Disc>): Map<Pos, Option<Disc>> {
             }
         })
     }
-}
 
-fun Board.findFixed(disc: Disc): Set<Pos> {
-    // checks corner pos
-    val isFixed = mapValues { false }.toMutableMap()
-    val c00 = Pos(0, 0)
-    val c08 = Pos(0, 7)
-    val c80 = Pos(7, 0)
-    val c88 = Pos(7, 7)
-    val corners = setOf(c00, c08, c80, c88)
-    corners.forEach { c -> get(c).forEach { isFixed[c] = it == disc } }
 
-    // checks edge pos
-    val vD = Pos.Vec(1, 0)
-    val vR = Pos.Vec(0, 1)
-    val vL = Pos.Vec(0, -1)
-    val vU = Pos.Vec(-1, 0)
-    listOf(c00 to vD, c00 to vR, c08 to vD, c08 to vL, c80 to vU, c80 to vR, c88 to vU, c88 to vL).forEach { (c, d) ->
-        iterator(c, d).asSequence().zipWithNext().forEach { (prev, next) ->
-            if (isFixed[prev]!!) get(next).forEach { isFixed[next] = isFixed[next]!! || it == disc }
-        }
-    }
-    listOf<(Int) -> Pos>({ Pos(it, 0) }, { Pos(it, 7) }, { Pos(0, it) }, { Pos(7, it) }).map((0..7)::map)
-        .forEach { edge ->
-            if (edge.all { get(it).isDefined }) edge.forEach { pos ->
-                get(pos).forEach { isFixed[pos] = isFixed[pos]!! || it == disc }
+    fun findFixed(disc: Disc): Set<Pos> {
+        // checks corner pos
+        val isFixed = mapValues { false }.toMutableMap()
+        val c00 = Pos(0, 0)
+        val c07 = Pos(0, 7)
+        val c70 = Pos(7, 0)
+        val c77 = Pos(7, 7)
+        val corners = setOf(c00, c07, c70, c77)
+        corners.forEach { c -> get(c).forEach { isFixed[c] = it == disc } }
+
+        // checks edge pos
+        val vD = Pos.Vec(1, 0)
+        val vR = Pos.Vec(0, 1)
+        val vL = Pos.Vec(0, -1)
+        val vU = Pos.Vec(-1, 0)
+        listOf(c00 to vD, c00 to vR, c07 to vD, c07 to vL, c70 to vU, c70 to vR, c77 to vU, c77 to vL).forEach { (c, d) ->
+            iterator(c, d).asSequence().zipWithNext().forEach { (prev, next) ->
+                if (isFixed[prev]!!) get(next).forEach { isFixed[next] = isFixed[next]!! || it == disc }
             }
         }
+        listOf<(Int) -> Pos>({ Pos(it, 0) }, { Pos(it, 7) }, { Pos(0, it) }, { Pos(7, it) }).map((0..7)::map)
+            .forEach { edge ->
+                if (edge.all { get(it).isDefined }) edge.forEach { pos ->
+                    get(pos).forEach { isFixed[pos] = isFixed[pos]!! || it == disc }
+                }
+            }
 
-    // checks inner pos
-    val v = setOf(Pos.Vec(-1, 0), Pos.Vec(1, 0))
-    val h = setOf(Pos.Vec(0, -1), Pos.Vec(0, 1))
-    val s = setOf(Pos.Vec(-1, 1), Pos.Vec(1, -1))
-    val b = setOf(Pos.Vec(-1, -1), Pos.Vec(1, 1))
-    val dirs = listOf(v, h, s, b)
-    for (i in 1..3) {
-        val lt = Pos(i, i)
-        val rt = Pos(i, 7 - i)
-        val lb = Pos(7 - i, i)
-        val rb = Pos(7 - i, 7 - i)
-        listOf(lt to vD, lt to vR, rt to vD, rt to vL, lb to vU, lb to vR, rb to vU, rb to vL).forEach { (x, d) ->
-            iterator(x, d).asSequence()
-                .filter { pos -> dirs.all { dir -> dir.any { v -> (pos + v).map { isFixed[it]!! }.orDefault(true) } } }
-                .forEach { pos -> get(pos).forEach { isFixed[pos] = isFixed[pos]!! || it == disc } }
+        // checks inner pos
+        val v = setOf(Pos.Vec(-1, 0), Pos.Vec(1, 0))
+        val h = setOf(Pos.Vec(0, -1), Pos.Vec(0, 1))
+        val s = setOf(Pos.Vec(-1, 1), Pos.Vec(1, -1))
+        val b = setOf(Pos.Vec(-1, -1), Pos.Vec(1, 1))
+        val dirs = listOf(v, h, s, b)
+        for (i in 1..3) {
+            val lt = Pos(i, i)
+            val rt = Pos(i, 7 - i)
+            val lb = Pos(7 - i, i)
+            val rb = Pos(7 - i, 7 - i)
+            listOf(lt to vD, lt to vR, rt to vD, rt to vL, lb to vU, lb to vR, rb to vU, rb to vL).forEach { (x, d) ->
+                iterator(x, d).asSequence()
+                    .filter { pos -> dirs.all { dir -> dir.any { v -> (pos + v).map { isFixed[it]!! }.orDefault(true) } } }
+                    .forEach { pos -> get(pos).forEach { isFixed[pos] = isFixed[pos]!! || it == disc } }
+            }
         }
+        return keys.filter { isFixed[it]!! }.toSet()
     }
-    return keys.filter { isFixed[it]!! }.toSet()
+
+    fun normalize(normalize: Pos.Normalize): Board = Board(discs.mapKeys { (pos, _) -> normalize(pos) })
+
 }

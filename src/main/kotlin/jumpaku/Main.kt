@@ -24,14 +24,23 @@ fun printBoard(board: Board) {
 fun play(darkSelector: Selector, lightSelector: Selector, printsBoard: Boolean = false): Game.Result {
     var game = Game()
     while (game.state is Game.State.WaitingMove) {
-        if (printsBoard) printBoard(game.board)
+        if (printsBoard) {
+            printBoard(game.board)
+        }
         val p = (game.state as Game.State.WaitingMove).player
         val move = (if (p == Disc.Dark) darkSelector else lightSelector).select(game)
         if (printsBoard) println((move as? Move.Place)?.let { "${it.pos.col+1}${it.pos.row+1}" })
         game = game.move(move)
-        if (printsBoard) println()
+        if (printsBoard) {
+            println()
+            println("D : pe = ${PatternEvaluator().evaluate(game, Disc.Dark)},pl = ${Evaluator().evaluatePlaced(game, Disc.Dark)},av = ${Evaluator().evaluateAvailable(game, Disc.Dark)}")
+            println("L : pe = ${PatternEvaluator().evaluate(game, Disc.Light)},pl = ${Evaluator().evaluatePlaced(game, Disc.Light)},av = ${Evaluator().evaluateAvailable(game, Disc.Light)}")
+            //println("L : pe = ${PatternEvaluator().evaluate(game, Disc.Light)}")
+        }
     }
-    if (printsBoard) printBoard(game.board)
+    if (printsBoard) {
+        printBoard(game.board)
+    }
     return (game.state as Game.State.Completed).result
 }
 fun main() {
@@ -44,9 +53,9 @@ fun main() {
         val resultD = play(aiSelector, randomSelector)
         println("$seed\tD\t${(resultD as? Game.Result.WinLose)?.winner?.first == Disc.Dark}")
     }
-    val ts = listOf(1..25, 26..50, 51..75, 76..100).map { thread { it.forEach(::compute) } }
-    ts.forEach { it.join() }
-    //println("placed avg : ${placedValueSum/ c}, available avg : ${availableValueSum/ c}")
+    listOf(101..125, 126..150, 151..175, 176..200, 1..25, 26..50, 51..75, 76..100)
+        .map { thread { it.forEach(::compute) } }
+        .forEach { it.join() }
     //println(play(InputSelector(System.`in`), AiSelector(), true))
 }
 
