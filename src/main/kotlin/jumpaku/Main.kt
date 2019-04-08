@@ -47,15 +47,15 @@ fun main() {
     //"F5D6C5F6C4F4E6D7E7C6F7D8C8E8G5B8E3F8B6B5A6A4A5A7C7B4G6H6H7B3D3C3C2C1H5D2E2F1B1D1B2A3E1H4H3G4G3F3G1F2B7H2H1G7"
     fun compute(seed: Int) {
         val randomSelector = RandomSelector(seed)
-        val aiSelector = AiSelector()
+        val aiSelector = AiSelector(1089)
         val resultL = play(randomSelector, aiSelector)
         println("$seed\tL\t${(resultL as? Game.Result.WinLose)?.winner?.first == Disc.Light}")
         val resultD = play(aiSelector, randomSelector)
         println("$seed\tD\t${(resultD as? Game.Result.WinLose)?.winner?.first == Disc.Dark}")
     }
-    listOf(101..125, 126..150, 151..175, 176..200, 1..25, 26..50, 51..75, 76..100)
-        .map { thread { it.forEach(::compute) } }
-        .forEach { it.join() }
-    //println(play(InputSelector(System.`in`), AiSelector(), true))
+    //listOf(101..125, 126..150, 151..175, 176..200, 1..25, 26..50, 51..75, 76..100)
+    //    .map { thread { it.forEach(::compute) } }
+    //    .forEach { it.join() }
+    println(play(InputSelector(System.`in`), AiSelector(1089), true))
 }
 

@@ -36,16 +36,12 @@ class Board(discs: Map<Pos, Disc>): Map<Pos, Option<Disc>> {
         require(get(pos).isEmpty)
         val opponentsDisc = disc.reverse()
         return Pos.directions().map { dir ->
-            val s = sequence {
-                var p = some(pos)
-                while (p.flatMap { (it + dir).flatMap { get(it).filter { it == opponentsDisc } } }.isDefined) {
-                    p = p.flatMap { it + dir }
-                    yield(p)
-                }
-            }
+            val s = iterator(pos, dir).asSequence()
+                .drop(1)
+                .takeWhile { get(it).map { it == opponentsDisc }.orDefault(false) }
+                .toList()
             val p = s.lastOrNull() ?: return@map dir to 0
-            val n = s.count()
-            dir to p.flatMap { (it + dir).flatMap { get(it).filter { it == disc } } }.map { n }.orDefault(0)
+            dir to (p + dir).flatMap { get(it).filter { it == disc } }.map { s.size }.orDefault(0)
         }.toMap()
     }
 
