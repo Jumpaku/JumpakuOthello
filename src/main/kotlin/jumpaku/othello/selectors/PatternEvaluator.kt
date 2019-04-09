@@ -15,9 +15,9 @@ class PatternEvaluator {
         private val n = '\n'
     }
 
-    fun evaluate(game: Game, focusTo: Disc): Double = when(game.state) {
+    fun evaluate(game: Game, focusTo: Disc): Double = when (game.state) {
         is Game.State.Completed -> 0.0
-        is Game.State.WaitingMove -> Pos.normalizers().flatMap { normalizer ->
+        is Game.State.WaitingMove -> Pos.Normalize.values().flatMap { normalizer ->
             val board = toString(game.board.normalize(normalizer), focusTo)
             val onMove = focusTo == game.state.player
             BoardPattern.values().map { it.evaluate(board, onMove) }
@@ -27,15 +27,15 @@ class PatternEvaluator {
     fun toString(
         board: Board,
         playerDisc: Disc
-    ): String = board
-        .mapValues { it.value.map { if (it == playerDisc) o else x }.orDefault(w) }
-        .run {
-            (0..7).joinToString("$n") { i ->
-                (0..7).joinToString("") { j ->
-                    "${getValue(Pos(i, j))}"
-                }
-            }
+    ): String = (0..7).joinToString("$n") { i ->
+        (0..7).joinToString("") { j ->
+            when (board[Pos(i, j)]) {
+                playerDisc -> o
+                playerDisc.reverse() -> x
+                else -> w
+            }.toString()
         }
+    }
 
     enum class BoardPattern(val regex: Regex, val computeScore: (String, Boolean) -> Double) {
 

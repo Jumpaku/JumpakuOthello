@@ -30,8 +30,8 @@ class Game(
         fun next(board: Board) : State {
             val player = (this as WaitingMove).player
             val opponent = player.reverse()
-            val nD = board.flatMap { it.value.filter { it == Disc.Dark } }.size
-            val nL = board.flatMap { it.value.filter { it == Disc.Light } }.size
+            val nD = board.count(Disc.Dark)
+            val nL = board.count(Disc.Light)
             return when {
                 listOf(player, opponent).any { board.availablePositions(it).isNotEmpty() } -> WaitingMove(opponent)
                 nD > nL -> Completed(Result.WinLose(Disc.Dark to nD, Disc.Light to nL))
@@ -69,7 +69,10 @@ class Game(
         is State.Completed -> emptyList()
     }
 
-    val progress: Int = board.count { it.value.isDefined } - 4
+    /**
+     * the number of existing discs without initial 4 discs
+     */
+    val progress: Int = board.count(Disc.Dark) + board.count(Disc.Light) - 4
 
     fun undo(n: Int): Game {
         require(history.size >= n)

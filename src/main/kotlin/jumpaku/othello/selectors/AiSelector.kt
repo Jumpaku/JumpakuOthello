@@ -1,5 +1,6 @@
 package jumpaku.othello.selectors
 
+import jumpaku.*
 import jumpaku.othello.game.Disc
 import jumpaku.othello.game.Game
 import jumpaku.othello.game.Move
@@ -7,6 +8,9 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.random.Random
 
+var c = 0
+var ce = 0
+var winningCount = 0
 class AiSelector(seed: Int) : Selector {
 
     fun computeDepth(game: Game): Int {
@@ -37,25 +41,59 @@ class AiSelector(seed: Int) : Selector {
 
     override fun select(game: Game): Move {
         require(game.state is Game.State.WaitingMove)
+        println(game.progress)
         val ms = game.availableMoves
         if (ms.size == 1) return ms.first()
         if (game.progress < 2) return ms.shuffled(random).first()
         val player = game.state.player
         val depth = computeDepth(game)
-        if (depth == 8) return ms.find { isWinningGame(7, game.move(it), player) }
-            ?: ms.maxBy { minmax(8, game.move(it), player) }!!
+        if (game.progress > 43) {
+            val ws = System.nanoTime()
+            val winning = ms.find { isWinningGame(100, game.move(it), player) }
+                //?: ms.maxBy { minmax(8, game.move(it), player) }!!
+            println(", $winningCount ${(System.nanoTime() - ws)*1e-9}")
+            winningCount=0
+            if (winning != null) return winning
+        }
         val s = System.nanoTime()
+        print(depth)
         val m = ms.maxBy { minmax(depth, game.move(it), player) }!!
-        //println("$depth, ${(System.nanoTime() - s)*1e-9}")
+        println(", $c, ${(System.nanoTime() - s)*1e-9}")
+        c=0
+
+        println("time------Place $timePlace")
+        timePlace = 0.0
+        println("time-BuildBoard $timeBuildBoard")
+        timeBuildBoard = 0.0
+        println("time---Evaluate $timeEvaluate")
+        timeEvaluate = 0.0
+        println("time----timeEvalPlaced $timeEvalPlaced")
+        timeEvalPlaced = 0.0
+        println("time-----timeAvailable $timeAvailable")
+        timeAvailable = 0.0
+        println("time---------------timeAvailablePositions $timeAvailablePositions")
+        timeAvailablePositions = 0.0
+        println("time------------------------timeFindFixed $timeFindFixed")
+        timeFindFixed = 0.0
+        println("time---------------------timeSumAvailable $timeSumAvailable")
+        timeSumAvailable = 0.0
+        println("time------------------------timeSumPlaced $timeSumPlaced")
+        timeSumPlaced = 0.0
         return m
     }
 
 
-    fun isWinningGame(depth: Int, game: Game, selectPlayer: Disc): Boolean = depth >= 0 && when (game.state) {
-        is Game.State.Completed -> (game.state.result as? Game.Result.WinLose)?.winner?.first == selectPlayer
-        is Game.State.WaitingMove -> when (selectPlayer) {
-            game.state.player -> game.availableMoves.any { isWinningGame(depth - 1, game.move(it), selectPlayer) }
-            else -> game.availableMoves.all { isWinningGame(depth - 1, game.move(it), selectPlayer) }
+    fun isWinningGame(depth: Int, game: Game, selectPlayer: Disc): Boolean {
+        if (depth < 0) winningCount++
+        return depth >= 0 && when (game.state) {
+            is Game.State.Completed -> {
+                winningCount++
+                (game.state.result as? Game.Result.WinLose)?.winner?.first == selectPlayer
+            }
+            is Game.State.WaitingMove -> when (selectPlayer) {
+                game.state.player -> game.availableMoves.any { isWinningGame(depth - 1, game.move(it), selectPlayer) }
+                else -> game.availableMoves.all { isWinningGame(depth - 1, game.move(it), selectPlayer) }
+            }
         }
     }
 
