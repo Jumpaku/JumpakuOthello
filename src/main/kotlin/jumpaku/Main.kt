@@ -49,11 +49,6 @@ fun printBoardFixed(board: Board) {
     println(sep)
 }
 
-var timePlace = 0.0
-var timeBuildBoard = 0.0
-var timeEvaluate = 0.0
-var timeEvalPlaced = 0.0
-var timeAvailable = 0.0
 fun play(darkSelector: Selector, lightSelector: Selector, printsBoard: Boolean = false): Game.Result {
     var game = Game()
     while (game.state is Game.State.WaitingMove) {
@@ -98,7 +93,7 @@ fun main() {
         println(resultD)
         println("$seed\tD\t${(resultD as? Game.Result.WinLose)?.winner?.first == Disc.Dark}")
     }
-    compute(500)
+    compute(2000)
     //listOf(101..125, 126..150, 151..175, 176..200, 1..25, 26..50, 51..75, 76..100)
     //    .map { thread { it.forEach(::compute) } }
     //    .forEach { it.join() }

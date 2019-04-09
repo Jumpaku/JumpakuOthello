@@ -1,6 +1,5 @@
 package jumpaku.othello.selectors
 
-import jumpaku.*
 import jumpaku.othello.game.Disc
 import jumpaku.othello.game.Game
 import jumpaku.othello.game.Move
@@ -8,10 +7,9 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.random.Random
 
-var c = 0
-var ce = 0
-var winningCount = 0
 class AiSelector(seed: Int) : Selector {
+
+    private val random = Random(seed)
 
     fun computeDepth(game: Game): Int {
         val a = game.board.availablePositions(Disc.Dark).size
@@ -48,68 +46,35 @@ class AiSelector(seed: Int) : Selector {
         val player = game.state.player
         val depth = computeDepth(game)
         if (game.progress > 43) {
-            val ws = System.nanoTime()
             val winning = ms.find { isWinningGame(100, game.move(it), player) }
-                //?: ms.maxBy { minmax(8, game.move(it), player) }!!
-            println(", $winningCount ${(System.nanoTime() - ws)*1e-9}")
-            winningCount=0
             if (winning != null) return winning
         }
-        val s = System.nanoTime()
-        print(depth)
-        val m = ms.maxBy { minmax(depth, game.move(it), player) }!!
-        println(", $c, ${(System.nanoTime() - s)*1e-9}")
-        c=0
-
-        println("time------Place $timePlace")
-        timePlace = 0.0
-        println("time-BuildBoard $timeBuildBoard")
-        timeBuildBoard = 0.0
-        println("time---Evaluate $timeEvaluate")
-        timeEvaluate = 0.0
-        println("time----timeEvalPlaced $timeEvalPlaced")
-        timeEvalPlaced = 0.0
-        println("time-----timeAvailable $timeAvailable")
-        timeAvailable = 0.0
-        println("time---------------timeAvailablePositions $timeAvailablePositions")
-        timeAvailablePositions = 0.0
-        println("time------------------------timeFindFixed $timeFindFixed")
-        timeFindFixed = 0.0
-        println("time---------------------timeSumAvailable $timeSumAvailable")
-        timeSumAvailable = 0.0
-        println("time------------------------timeSumPlaced $timeSumPlaced")
-        timeSumPlaced = 0.0
-        return m
+        return ms.maxBy { minmax(depth, game.move(it), player) }!!
     }
 
 
     fun isWinningGame(depth: Int, game: Game, selectPlayer: Disc): Boolean {
-        if (depth < 0) winningCount++
-        return depth >= 0 && when (game.state) {
-            is Game.State.Completed -> {
-                winningCount++
-                (game.state.result as? Game.Result.WinLose)?.winner?.first == selectPlayer
-            }
-            is Game.State.WaitingMove -> when (selectPlayer) {
-                game.state.player -> game.availableMoves.any { isWinningGame(depth - 1, game.move(it), selectPlayer) }
+        return depth >= 0 && when (val s = game.state) {
+            is Game.State.Completed -> (s.result as? Game.Result.WinLose)?.winner?.first == selectPlayer
+            is Game.State.WaitingMove -> when {
+                game.board.fixedDiscs(selectPlayer).size > 32 -> true
+                s.player == selectPlayer -> game.availableMoves.any { isWinningGame(depth - 1, game.move(it), selectPlayer) }
                 else -> game.availableMoves.all { isWinningGame(depth - 1, game.move(it), selectPlayer) }
             }
         }
     }
 
-    private val random = Random(1089)
-
-    fun minmax(depth: Int, game: Game, selectPlayer: Disc): Double = when (game.state) {
+    fun minmax(depth: Int, game: Game, selectPlayer: Disc): Double = when (val s = game.state) {
         is Game.State.Completed -> when {
-            game.state.result is Game.Result.WinLose && selectPlayer == game.state.result.winner.first -> Double.MAX_VALUE
-            game.state.result is Game.Result.WinLose && selectPlayer == game.state.result.loser.first -> Double.MIN_VALUE
+            s.result is Game.Result.WinLose && selectPlayer == s.result.winner.first -> Double.MAX_VALUE
+            s.result is Game.Result.WinLose && selectPlayer == s.result.loser.first -> Double.MIN_VALUE
             else -> 0.0
         }
         is Game.State.WaitingMove ->
             if (depth == 0) Evaluator().evaluate(game, selectPlayer)
             else game.availableMoves.shuffled(random)
                 .map { minmax(depth - 1, game.move(it), selectPlayer) }
-                .run { if (game.state.player == selectPlayer) max() else min() }!!
+                .run { if (s.player == selectPlayer) max() else min() }!!
     }
 
     fun alphabeta(

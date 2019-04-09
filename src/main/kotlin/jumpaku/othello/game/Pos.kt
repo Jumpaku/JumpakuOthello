@@ -8,7 +8,7 @@ data class Pos(val row: Int, val col: Int) {
     @ExperimentalUnsignedTypes
     val bits: ULong = 1uL shl (row * 8 + col)
 
-    enum class Normalize(val f: (Pos) -> Pos) {
+    enum class Normalizer(val f: (Pos) -> Pos) {
         I({ it }),
         Ref(::reflect),
         Rot(::rotate),

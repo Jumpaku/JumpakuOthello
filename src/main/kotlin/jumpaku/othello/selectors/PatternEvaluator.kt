@@ -1,6 +1,5 @@
 package jumpaku.othello.selectors
 
-import jumpaku.commons.control.orDefault
 import jumpaku.othello.game.Board
 import jumpaku.othello.game.Disc
 import jumpaku.othello.game.Game
@@ -17,7 +16,7 @@ class PatternEvaluator {
 
     fun evaluate(game: Game, focusTo: Disc): Double = when (game.state) {
         is Game.State.Completed -> 0.0
-        is Game.State.WaitingMove -> Pos.Normalize.values().flatMap { normalizer ->
+        is Game.State.WaitingMove -> Pos.Normalizer.values().flatMap { normalizer ->
             val board = toString(game.board.normalize(normalizer), focusTo)
             val onMove = focusTo == game.state.player
             BoardPattern.values().map { it.evaluate(board, onMove) }

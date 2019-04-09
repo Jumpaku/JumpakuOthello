@@ -1,9 +1,5 @@
 package jumpaku.othello.game
 
-import jumpaku.commons.control.*
-import jumpaku.timeBuildBoard
-import jumpaku.timePlace
-
 
 @ExperimentalUnsignedTypes
 class Board(private val darkBits: ULong = 0uL, private val lightBits: ULong = 0uL) {
@@ -86,14 +82,11 @@ class Board(private val darkBits: ULong = 0uL, private val lightBits: ULong = 0u
             }
             if (mask and playerBoard != 0uL) rev else 0uL
         }.reduce(ULong::or)
-        timePlace += (System.nanoTime() - s) * 1e-9
         val updatedPlayerBoard = playerBoard or reversed or placed
         val updatedOpponentBoard = opponentBoard xor reversed
-        val s1 = System.nanoTime()
-        val ret = if (disc == Disc.Dark) Board(darkBits = updatedPlayerBoard, lightBits = updatedOpponentBoard)
+        System.nanoTime()
+        return if (disc == Disc.Dark) Board(darkBits = updatedPlayerBoard, lightBits = updatedOpponentBoard)
         else Board(darkBits = updatedOpponentBoard, lightBits = updatedPlayerBoard)
-        timeBuildBoard += (System.nanoTime() - s1) * 1e-9
-        return ret
     }
 
     fun fixedDiscs(disc: Disc): Set<Pos> {
@@ -129,8 +122,8 @@ class Board(private val darkBits: ULong = 0uL, private val lightBits: ULong = 0u
 
     }
 
-    fun normalize(normalize: Pos.Normalize): Board =
-        Board(Pos.enumerate.mapNotNull { p -> get(p)?.let { normalize(p) to it } }.toMap())
+    fun normalize(normalizer: Pos.Normalizer): Board =
+        Board(Pos.enumerate.mapNotNull { p -> get(p)?.let { normalizer(p) to it } }.toMap())
 
     private val table = intArrayOf(
         0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4,
