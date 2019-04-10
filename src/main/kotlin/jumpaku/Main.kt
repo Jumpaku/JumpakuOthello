@@ -106,6 +106,6 @@ fun main() {
     println(play(
     //    InputSelector(b0), InputSelector(b1), true))
     //    AiSelector(1089), InputSelector(System.`in`), true))
-        InputSelector(System.`in`), AiSelector(283), true))
+        AiSelector(1089), AiSelector(283), true))
 }
 

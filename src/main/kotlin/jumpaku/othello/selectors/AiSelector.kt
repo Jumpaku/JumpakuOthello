@@ -3,6 +3,7 @@ package jumpaku.othello.selectors
 import jumpaku.othello.game.Disc
 import jumpaku.othello.game.Game
 import jumpaku.othello.game.Move
+import jumpaku.othello.game.Pos
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.random.Random
@@ -12,47 +13,21 @@ class AiSelector(seed: Int) : Selector {
 
     private val random = Random(seed)
 
-    fun computeDepth(game: Game): Int {
-        val a = game.board.availablePositions(Disc.Dark).size
-        val b = game.board.availablePositions(Disc.Light).size
-        fun estimateDepth(threshold: Int, atMost: Int): Int = sequence {
-            var x = 1
-            repeat(30) {
-                x *= a
-                yield(x)
-                x *= b
-                yield(x)
-            }
-        }.takeWhile { it < threshold }.count().coerceAtMost(atMost)
-        return /*when (game.progress) {
-            0 -> 1
-            in 1..5 -> 3
-            in 6..16 -> estimateDepth(300, 3)
-            in 17..26 -> 2
-            in 27..30 -> estimateDepth(300, 3)
-            in 31..41 -> estimateDepth(500, 3)
-            in 42..44 -> estimateDepth(1000, 3)
-            in 45..47 -> estimateDepth(1000, 4)
-            in 48..52 -> estimateDepth(1000, 5)
-            else -> 8
-        }*/4
+    fun computeDepth(pos: Pos): Int = when(pos) {
+        Pos(0, 1), Pos(1, 0), Pos(0, 6), Pos(1, 7),
+        Pos(6, 0), Pos(7, 1), Pos(6, 7), Pos(7, 6),
+        Pos(1, 1), Pos(1, 6), Pos(6, 1), Pos(6, 6) -> 4
+        else -> 3
     }
 
     override fun select(game: Game): Move {
         require(game.state is Game.State.WaitingMove)
         val ms = game.availableMoves
+        val player = game.state.player
         if (ms.size == 1) return ms.first()
         if (game.progress < 2) return ms.shuffled(random).first()
-        val player = game.state.player
-        val s = System.nanoTime()
-        if (game.progress > 40) ms.find { isWinningGame(100, game.move(it), player) }?.let {
-            if (countIsWinningGame > 100_000)
-                println("${game.progress}: ${(System.nanoTime() - s)*1e-9}: $countIsWinningGame WIN "); countIsWinningGame = 0; return it
-        }
-        val depth = computeDepth(game)
-        val m = ms.maxBy { minmax(depth, game.move(it), player) }!!
-        //println("${game.progress}: ${(System.nanoTime() - s)*1e-9}")
-        return m
+        if (game.progress >= 45) ms.find { isWinningGame(100, game.move(it), player) }?.let { println("WIN");return it }
+        return ms.mapNotNull { it as? Move.Place }.maxBy { minmax(computeDepth(it.pos), game.move(it), player) }!!
     }
 
     fun isWinningGame(depth: Int, game: Game, selectPlayer: Disc): Boolean {

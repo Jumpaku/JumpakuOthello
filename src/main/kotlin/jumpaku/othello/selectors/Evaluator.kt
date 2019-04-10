@@ -30,12 +30,12 @@ class Evaluator {
 
         val placedValues: Array<IntArray> = arrayOf(
             intArrayOf(100, -40, -3, -5, -5, -3, -40, 100),
-            intArrayOf(-40, -70, -5, -4, -4, -5, -70, -40),
+            intArrayOf(-40, -80, -5, -4, -4, -5, -80, -40),
             intArrayOf(-3, -5, -2, -3, -3, -2, -5, -3),
             intArrayOf(-5, -4, -3, -1, -1, -3, -4, -5),
             intArrayOf(-5, -4, -3, -1, -1, -3, -4, -5),
             intArrayOf(-3, -5, -2, -3, -3, -2, -5, -3),
-            intArrayOf(-40, -70, -5, -4, -4, -5, -70, -40),
+            intArrayOf(-40, -80, -5, -4, -4, -5, -80, -40),
             intArrayOf(100, -40, -3, -5, -5, -3, -40, 100)
         )
     }
@@ -49,15 +49,15 @@ class Evaluator {
             val v0 = availableValues[pos.row][pos.col]
             val v = when (pos) {
                 // C
-                Pos(0, 1), Pos(1, 0) -> board[Pos(0, 0)]?.let { if (it == player) 12 else 2 } ?: v0
-                Pos(0, 6), Pos(1, 7) -> board[Pos(0, 7)]?.let { if (it == player) 12 else 2 } ?: v0
-                Pos(6, 0), Pos(7, 1) -> board[Pos(7, 0)]?.let { if (it == player) 12 else 2 } ?: v0
-                Pos(6, 7), Pos(7, 6) -> board[Pos(7, 7)]?.let { if (it == player) 12 else 2 } ?: v0
+                Pos(0, 1), Pos(1, 0) -> board[Pos(0, 0)]?.let { if (it == player) 15 else 2 } ?: v0
+                Pos(0, 6), Pos(1, 7) -> board[Pos(0, 7)]?.let { if (it == player) 15 else 2 } ?: v0
+                Pos(6, 0), Pos(7, 1) -> board[Pos(7, 0)]?.let { if (it == player) 15 else 2 } ?: v0
+                Pos(6, 7), Pos(7, 6) -> board[Pos(7, 7)]?.let { if (it == player) 15 else 2 } ?: v0
                 // X
-                Pos(1, 1) -> board[Pos(0, 0)]?.let { if (it == player) 5 else 1 } ?: v0
-                Pos(1, 6) -> board[Pos(0, 7)]?.let { if (it == player) 5 else 1 } ?: v0
-                Pos(6, 1) -> board[Pos(7, 0)]?.let { if (it == player) 5 else 1 } ?: v0
-                Pos(6, 6) -> board[Pos(7, 7)]?.let { if (it == player) 5 else 1 } ?: v0
+                Pos(1, 1) -> board[Pos(0, 0)]?.let { if (it == player) 7 else 1 } ?: v0
+                Pos(1, 6) -> board[Pos(0, 7)]?.let { if (it == player) 7 else 1 } ?: v0
+                Pos(6, 1) -> board[Pos(7, 0)]?.let { if (it == player) 7 else 1 } ?: v0
+                Pos(6, 6) -> board[Pos(7, 7)]?.let { if (it == player) 7 else 1 } ?: v0
                 // Corner
                 Pos(0, 0) -> v0 - 4 * (0..7).flatMap { setOf(Pos(0, it), Pos(it, 0)) }.intersect(oFixed).size
                 Pos(0, 7) -> v0 - 4 * (0..7).flatMap { setOf(Pos(0, it), Pos(it, 7)) }.intersect(oFixed).size
