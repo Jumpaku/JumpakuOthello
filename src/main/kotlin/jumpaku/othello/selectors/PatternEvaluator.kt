@@ -1,6 +1,5 @@
 package jumpaku.othello.selectors
 
-import jumpaku.commons.control.orDefault
 import jumpaku.othello.game.Board
 import jumpaku.othello.game.Disc
 import jumpaku.othello.game.Game
@@ -15,9 +14,9 @@ class PatternEvaluator {
         private val n = '\n'
     }
 
-    fun evaluate(game: Game, focusTo: Disc): Double = when(game.state) {
+    fun evaluate(game: Game, focusTo: Disc): Double = when (game.state) {
         is Game.State.Completed -> 0.0
-        is Game.State.WaitingMove -> Pos.normalizers().flatMap { normalizer ->
+        is Game.State.WaitingMove -> Pos.Normalizer.values().flatMap { normalizer ->
             val board = toString(game.board.normalize(normalizer), focusTo)
             val onMove = focusTo == game.state.player
             BoardPattern.values().map { it.evaluate(board, onMove) }
@@ -27,32 +26,32 @@ class PatternEvaluator {
     fun toString(
         board: Board,
         playerDisc: Disc
-    ): String = board
-        .mapValues { it.value.map { if (it == playerDisc) o else x }.orDefault(w) }
-        .run {
-            (0..7).joinToString("$n") { i ->
-                (0..7).joinToString("") { j ->
-                    "${getValue(Pos(i, j))}"
-                }
-            }
+    ): String = (0..7).joinToString("$n") { i ->
+        (0..7).joinToString("") { j ->
+            when (board[Pos(i, j)]) {
+                playerDisc -> o
+                playerDisc.reverse() -> x
+                else -> w
+            }.toString()
         }
+    }
 
     enum class BoardPattern(val regex: Regex, val computeScore: (String, Boolean) -> Double) {
 
         Corner(Regex("^o.{7}(\n.*){7}$"), { s, c -> 20.0 * s.take(8).takeWhile { it == o }.length }),
-        Mountain(Regex("^_o{6}_\n.(_|x).{4}(_|x).(\n.*){6}$"), { s, c -> 60.0 }),
-        HalfSquare(Regex("^__o..(x|_)__\n._o.{3}_.(\n.*){6}$"), { s, c -> 20.0 }),
-        Square(Regex("^__o.{2}o__\n._o.{2}o_.(\n.*){6}$"), { s, c -> 20.0 }),
-        GoodA(Regex("^__o.{3}__\n._(x|_).{3}_.(\n.*){6}$"), { s, c -> 20.0 }),
-        CheckCornerC(Regex("^_x+o+(x+.*|_x+o+.*)(\n.*){7}$"), { s, c -> 70.0 }),
-        CheckCornerX(Regex("^_.{7}\n.x.*\n..(o.*(\n.*){5}|x.*\n.{3}(o.*(\n.*){4}|x.*\n.{4}(o.*(\n.*){3}|x.*\n.{5}(o.*(\n.*){2}|x.*\n.{6}(o.\n.*(o|x)|x.\n.*o)))))$"), { s, c -> 20.0 }),
-        ExpectCorner1(Regex("^_x+_x+((_|o+x).*|.*o)(\n.*){7}$"), { s, c -> 10.0 }),
-        ExpectCorner2(Regex("^_x+__o+((_|x+o).*|.*o)(\n.*){7}$"), { s, c -> 20.0 }),
-        ExpectCorner3(Regex("^_x+_o+(x+o.*|.*o|.*__)(\n.*){7}$"), { s, c -> 20.0 }),
-        Wing(Regex("^__x{5}_\n._x.*(\n.*){6}$"), { s, c -> 20.0 }),
-        AttackWing(Regex("^__x{5}_\n.o(o|x).*\n.(o|x){2}.*(\n.*){5}$"), { s, c -> 40.0 }),
-        Standoff(Regex("^_o+_x+__\n._.{4}_.(\n.*){6}$"), { s, c -> 20.0 }),
-        AttackStandoff(Regex("^(_o_xxxx_\n.o.*x+.*.{4}|_oo_xxx_\n.o.*x+.*.{3}|_ooo_xx_\n.o.+x+.*..|_oooo_x_\n.o..+x+.*..)(\n.*){6}$"), { s, c ->
+        Mountain(Regex("^_o{6}_\n.(_|x).{4}(_|x).(\n.*){6}$"), { _, _ -> 60.0 }),
+        HalfSquare(Regex("^__o..(x|_)__\n._o.{3}_.(\n.*){6}$"), { _, _ -> 20.0 }),
+        Square(Regex("^__o.{2}o__\n._o.{2}o_.(\n.*){6}$"), { _, _ -> 20.0 }),
+        GoodA(Regex("^__o.{3}__\n._(x|_).{3}_.(\n.*){6}$"), { _, _ -> 20.0 }),
+        CheckCornerC(Regex("^_x+o+(x+.*|_x+o+.*)(\n.*){7}$"), { _, _ -> 70.0 }),
+        CheckCornerX(Regex("^_.{7}\n.x.*\n..(o.*(\n.*){5}|x.*\n.{3}(o.*(\n.*){4}|x.*\n.{4}(o.*(\n.*){3}|x.*\n.{5}(o.*(\n.*){2}|x.*\n.{6}(o.\n.*(o|x)|x.\n.*o)))))$"), { _, _ -> 20.0 }),
+        ExpectCorner1(Regex("^_x+_x+((_|o+x).*|.*o)(\n.*){7}$"), { _, _ -> 10.0 }),
+        ExpectCorner2(Regex("^_x+__o+((_|x+o).*|.*o)(\n.*){7}$"), { _, _ -> 20.0 }),
+        ExpectCorner3(Regex("^_x+_o+(x+o.*|.*o|.*__)(\n.*){7}$"), { _, _ -> 20.0 }),
+        Wing(Regex("^__x{5}_\n._x.*(\n.*){6}$"), { _, _ -> 20.0 }),
+        AttackWing(Regex("^__x{5}_\n.o(o|x).*\n.(o|x){2}.*(\n.*){5}$"), { _, _ -> 40.0 }),
+        Standoff(Regex("^_o+_x+__\n._.{4}_.(\n.*){6}$"), { _, _ -> 20.0 }),
+        AttackStandoff(Regex("^(_o_xxxx_\n.o.*x+.*.{4}|_oo_xxx_\n.o.*x+.*.{3}|_ooo_xx_\n.o.+x+.*..|_oooo_x_\n.o..+x+.*..)(\n.*){6}$"), { s, _ ->
             10.0 * (1 + s.slice(1..6).count { it == o })
         }),
         SafeX(Regex("^_.*\n.o.*\n..o.*\n.{3}o.*\n.{4}o.*\n.{5}o.*\n.{6}(o.\n.*(o|_)|_.\n.*_)$"), { s, c ->
@@ -63,7 +62,7 @@ class PatternEvaluator {
                 else -> error("")
             }
         }),
-        CrossFour(Regex("^_.*\n._.*\n..o.*\n.{3}o.*\n.{4}o.*\n.{5}o.*\n.{6}_.\n.*_$"), { s, c -> 10.0 }),
+        CrossFour(Regex("^_.*\n._.*\n..o.*\n.{3}o.*\n.{4}o.*\n.{5}o.*\n.{6}_.\n.*_$"), { _, _ -> 10.0 }),
         OneBlanks1(Regex("^_(o|x).*\n(o|x){2}.*(\n.*){6}$"), { s, c ->
             50.0 * scoreHelperBlankPattern(s.slice(setOf(1, 9, 10)), c)
         }),

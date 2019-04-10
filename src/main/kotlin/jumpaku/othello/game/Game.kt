@@ -17,8 +17,8 @@ class Game(
             Pos(4, 3) to Disc.Dark
         )
     ),
-    val state: State = State.WaitingMove(Disc.Dark),
-    val history: List<Move> = emptyList()
+    val state: State = State.WaitingMove(Disc.Dark)/*,
+    val history: List<Move> = emptyList()*/
 ) {
 
     sealed class State {
@@ -30,8 +30,8 @@ class Game(
         fun next(board: Board) : State {
             val player = (this as WaitingMove).player
             val opponent = player.reverse()
-            val nD = board.flatMap { it.value.filter { it == Disc.Dark } }.size
-            val nL = board.flatMap { it.value.filter { it == Disc.Light } }.size
+            val nD = board.count(Disc.Dark)
+            val nL = board.count(Disc.Light)
             return when {
                 listOf(player, opponent).any { board.availablePositions(it).isNotEmpty() } -> WaitingMove(opponent)
                 nD > nL -> Completed(Result.WinLose(Disc.Dark to nD, Disc.Light to nL))
@@ -51,12 +51,12 @@ class Game(
     fun move(move: Move): Game {
         require(state is State.WaitingMove)
         return when(move) {
-            is Move.Pass -> Game(board, state.next(board), history + move)
+            is Move.Pass -> Game(board, state.next(board)/*, history + move*/)
             is Move.Place -> {
                 val pos = move.pos
                 require(move in availableMoves) {"not available $pos"}
                 val b = board.place(pos, state.player)
-                Game(b, state.next(b), history + move)
+                Game(b, state.next(b)/*, history + move*/)
             }
         }
     }
@@ -69,10 +69,13 @@ class Game(
         is State.Completed -> emptyList()
     }
 
-    val progress: Int = board.count { it.value.isDefined } - 4
+    /**
+     * the number of existing discs without initial 4 discs
+     */
+    val progress: Int = board.count(Disc.Dark) + board.count(Disc.Light) - 4
 
-    fun undo(n: Int): Game {
+    /*fun undo(n: Int): Game {
         require(history.size >= n)
         return history.dropLast(n).fold(Game()) { g, m -> g.move(m) }
-    }
+    }*/
 }
