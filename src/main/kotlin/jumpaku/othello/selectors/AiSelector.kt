@@ -7,6 +7,7 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.random.Random
 
+var countIsWinningGame = 0
 class AiSelector(seed: Int) : Selector {
 
     private val random = Random(seed)
@@ -23,7 +24,7 @@ class AiSelector(seed: Int) : Selector {
                 yield(x)
             }
         }.takeWhile { it < threshold }.count().coerceAtMost(atMost)
-        return when (game.progress) {
+        return /*when (game.progress) {
             0 -> 1
             in 1..5 -> 3
             in 6..16 -> estimateDepth(300, 3)
@@ -34,26 +35,28 @@ class AiSelector(seed: Int) : Selector {
             in 45..47 -> estimateDepth(1000, 4)
             in 48..52 -> estimateDepth(1000, 5)
             else -> 8
-        }
+        }*/4
     }
 
     override fun select(game: Game): Move {
         require(game.state is Game.State.WaitingMove)
-        println(game.progress)
         val ms = game.availableMoves
         if (ms.size == 1) return ms.first()
         if (game.progress < 2) return ms.shuffled(random).first()
         val player = game.state.player
-        val depth = computeDepth(game)
-        if (game.progress > 43) {
-            val winning = ms.find { isWinningGame(100, game.move(it), player) }
-            if (winning != null) return winning
+        val s = System.nanoTime()
+        if (game.progress > 40) ms.find { isWinningGame(100, game.move(it), player) }?.let {
+            if (countIsWinningGame > 100_000)
+                println("${game.progress}: ${(System.nanoTime() - s)*1e-9}: $countIsWinningGame WIN "); countIsWinningGame = 0; return it
         }
-        return ms.maxBy { minmax(depth, game.move(it), player) }!!
+        val depth = computeDepth(game)
+        val m = ms.maxBy { minmax(depth, game.move(it), player) }!!
+        //println("${game.progress}: ${(System.nanoTime() - s)*1e-9}")
+        return m
     }
 
-
     fun isWinningGame(depth: Int, game: Game, selectPlayer: Disc): Boolean {
+        countIsWinningGame++
         return depth >= 0 && when (val s = game.state) {
             is Game.State.Completed -> (s.result as? Game.Result.WinLose)?.winner?.first == selectPlayer
             is Game.State.WaitingMove -> when {

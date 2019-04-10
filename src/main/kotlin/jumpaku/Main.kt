@@ -62,8 +62,14 @@ fun play(darkSelector: Selector, lightSelector: Selector, printsBoard: Boolean =
         game = game.move(move)
         if (printsBoard) {
             println()
-            println("D : pe = ${PatternEvaluator().evaluate(game, Disc.Dark)},pl = ${Evaluator().evaluatePlaced(game, Disc.Dark)},av = ${Evaluator().evaluateAvailable(game, Disc.Dark)}")
-            println("L : pe = ${PatternEvaluator().evaluate(game, Disc.Light)},pl = ${Evaluator().evaluatePlaced(game, Disc.Light)},av = ${Evaluator().evaluateAvailable(game, Disc.Light)}")
+            val dp = Evaluator().evaluatePlaced(game, Disc.Dark)
+            val da = Evaluator().evaluateAvailable(game, Disc.Dark)
+            val de = Evaluator().evaluateExposed(game, Disc.Dark)
+            val lp = Evaluator().evaluatePlaced(game, Disc.Light)
+            val la = Evaluator().evaluateAvailable(game, Disc.Light)
+            val le = Evaluator().evaluateExposed(game, Disc.Light)
+            println("D : dp+da+de: ${dp+da+de} = dp: ${dp} + da: ${da} + de: ${de}")
+            println("L : lp+la+le: ${lp+la+le} = lp: ${lp} + la: ${la} + le: ${le}")
             //println("L : pe = ${PatternEvaluator().evaluate(game, Disc.Light)}")
         }
     }
@@ -87,20 +93,19 @@ fun main() {
         val randomSelector = RandomSelector(seed)
         val aiSelector = AiSelector(1089)
         val resultL = play(randomSelector, aiSelector)
-        println(resultL)
         println("$seed\tL\t${(resultL as? Game.Result.WinLose)?.winner?.first == Disc.Light}")
         val resultD = play(aiSelector, randomSelector)
-        println(resultD)
         println("$seed\tD\t${(resultD as? Game.Result.WinLose)?.winner?.first == Disc.Dark}")
     }
-    compute(2000)
+    //for (i in 500..510) compute(i)
     //listOf(101..125, 126..150, 151..175, 176..200, 1..25, 26..50, 51..75, 76..100)
     //    .map { thread { it.forEach(::compute) } }
     //    .forEach { it.join() }
     //val b0 = ByteArrayInputStream(h.windowed(2, 2).joinToString("\n", postfix = "\n").toByteArray())
     //val b1 = ByteArrayInputStream(h.windowed(2, 2).joinToString("\n", postfix = "\n").toByteArray())
-    //println(play(
+    println(play(
     //    InputSelector(b0), InputSelector(b1), true))
     //    AiSelector(1089), InputSelector(System.`in`), true))
+        InputSelector(System.`in`), AiSelector(283), true))
 }
 
