@@ -1,13 +1,7 @@
 package jumpaku
 
-import jumpaku.commons.control.orDefault
 import jumpaku.othello.game.*
 import jumpaku.othello.selectors.*
-import java.io.BufferedInputStream
-import java.io.ByteArrayInputStream
-import java.io.InputStream
-import java.io.StringReader
-import kotlin.concurrent.thread
 
 
 fun printBoard(board: Board) {
@@ -49,35 +43,35 @@ fun printBoardFixed(board: Board) {
     println(sep)
 }
 
-fun play(darkSelector: Selector, lightSelector: Selector, printsBoard: Boolean = false): Game.Result {
-    var game = Game()
-    while (game.state is Game.State.WaitingMove) {
+fun play(darkSelector: Selector, lightSelector: Selector, printsBoard: Boolean = false): Phase.Completed {
+    var phase: Phase = Phase.init()
+    while (phase is Phase.InProgress) {
         if (printsBoard) {
-            printBoard(game.board)
-            //printBoardFixed(game.board)
+            printBoard(phase.board)
+            //printBoardFixed(phase.board)
         }
-        val p = (game.state as Game.State.WaitingMove).player
-        val move = (if (p == Disc.Dark) darkSelector else lightSelector).select(game)
+        val p = phase.player
+        val move = (if (p == Disc.Dark) darkSelector else lightSelector).select(phase)
         if (printsBoard) println((move as? Move.Place)?.let { "${it.pos.col+1}${it.pos.row+1}" })
-        game = game.move(move)
+        phase = phase.move(move)
         if (printsBoard) {
             println()
-            val dp = Evaluator().evaluatePlaced(game, Disc.Dark)
-            val da = Evaluator().evaluateAvailable(game, Disc.Dark)
-            val de = Evaluator().evaluateExposed(game, Disc.Dark)
-            val lp = Evaluator().evaluatePlaced(game, Disc.Light)
-            val la = Evaluator().evaluateAvailable(game, Disc.Light)
-            val le = Evaluator().evaluateExposed(game, Disc.Light)
+            val dp = Evaluator().evaluatePlaced(phase, Disc.Dark)
+            val da = Evaluator().evaluateAvailable(phase, Disc.Dark)
+            val de = Evaluator().evaluateExposed(phase, Disc.Dark)
+            val lp = Evaluator().evaluatePlaced(phase, Disc.Light)
+            val la = Evaluator().evaluateAvailable(phase, Disc.Light)
+            val le = Evaluator().evaluateExposed(phase, Disc.Light)
             println("D : dp+da+de: ${dp+da+de} = dp: ${dp} + da: ${da} + de: ${de}")
             println("L : lp+la+le: ${lp+la+le} = lp: ${lp} + la: ${la} + le: ${le}")
-            //println("L : pe = ${PatternEvaluator().evaluate(game, Disc.Light)}")
+            //println("L : pe = ${PatternEvaluator().evaluate(phase, Disc.Light)}")
         }
     }
     if (printsBoard) {
-        printBoard(game.board)
-        //printBoardFixed(game.board)
+        printBoard(phase.board)
+        //printBoardFixed(phase.board)
     }
-    return (game.state as Game.State.Completed).result
+    return (phase as Phase.Completed)
 }
 fun main() {
     val h = "f5f6e6f4g5e7e3f3c5d3g4g3g6c3d7c6c4d6b5b3b4h4c7d8h5h3f8f7h2a6a5h7f2c8b6a4b7e2g2f1b8a8a7h1h6g7g1d2c1c2d1e1h8g8e8b1a1b2a3a2"
@@ -93,9 +87,9 @@ fun main() {
         val randomSelector = RandomSelector(seed)
         val aiSelector = AiSelector(1089)
         val resultL = play(randomSelector, aiSelector)
-        println("$seed\tL\t${(resultL as? Game.Result.WinLose)?.winner?.first == Disc.Light}")
+        println("$seed\tL\t${resultL.winner == Disc.Light}")
         val resultD = play(aiSelector, randomSelector)
-        println("$seed\tD\t${(resultD as? Game.Result.WinLose)?.winner?.first == Disc.Dark}")
+        println("$seed\tD\t${resultD.winner == Disc.Dark}")
     }
     //for (i in 500..510) compute(i)
     //listOf(101..125, 126..150, 151..175, 176..200, 1..25, 26..50, 51..75, 76..100)

@@ -1,21 +1,22 @@
 package jumpaku.othello.selectors
 
 import jumpaku.othello.game.*
-import kotlin.math.exp
 import kotlin.math.max
 
 class Evaluator {
 
-    fun evaluate(game: Game, selectPlayer: Disc): Double = when (val s = game.state) {
-        is Game.State.Completed -> when {
-            s.result is Game.Result.WinLose && s.result.winner.first == selectPlayer -> Double.MAX_VALUE
-            s.result is Game.Result.WinLose && s.result.loser.first == selectPlayer -> Double.MIN_VALUE
-            else -> 0.0
-        }
-        else -> evaluateFor(game, selectPlayer) - evaluateFor(game, selectPlayer.reverse())
+    fun evaluate(phase: Phase, selectPlayer: Disc): Double = when (phase) {
+        is Phase.Completed -> evaluateCompleted(phase, selectPlayer)
+        is Phase.InProgress-> evaluateFor(phase, selectPlayer) - evaluateFor(phase, selectPlayer.reverse())
     }
 
     companion object {
+
+        fun evaluateCompleted(result: Phase.Completed, selectPlayer: Disc): Double = when (selectPlayer) {
+            result.winner -> Double.MAX_VALUE
+            result.loser -> Double.MIN_VALUE
+            else -> 0.0
+        }
 
         val availableValues: Array<IntArray> = arrayOf(
             intArrayOf(100, -5, 5, 3, 3, 5, -5, 100),
@@ -40,10 +41,10 @@ class Evaluator {
         )
     }
 
-    fun evaluateAvailable(game: Game, player: Disc): Double {
-        val board = game.board
-        val pA = board.availablePositions(player)
-        val oA = board.availablePositions(player.reverse())
+    fun evaluateAvailable(phase: Phase, player: Disc): Double {
+        val board = phase.board
+        val pA = board.availablePos(player)
+        val oA = board.availablePos(player.reverse())
         val oFixed = board.fixedDiscs(player.reverse())
         return pA.map { pos ->
             val v0 = availableValues[pos.row][pos.col]
@@ -69,8 +70,8 @@ class Evaluator {
         }.sum()
     }
 
-    fun evaluatePlaced(game: Game, player: Disc): Double {
-        val b = game.board
+    fun evaluatePlaced(phase: Phase, player: Disc): Double {
+        val b = phase.board
         val fixed = b.fixedDiscs(player)
         val v = Pos.enumerate.filter { b[it] == player }.map { pos ->
             val v0 = placedValues[pos.row][pos.col]
@@ -97,8 +98,8 @@ class Evaluator {
         return v.toDouble()// + a1
     }
 
-    fun evaluateExposed(game: Game, player: Disc): Double {
-        val b = game.board
+    fun evaluateExposed(phase: Phase, player: Disc): Double {
+        val b = phase.board
         return Pos.enumerate.filter { b[it] == player }.map { pos ->
             val p = pos.bits
             val blanks = b.run { darkBits or lightBits }.inv()
@@ -114,10 +115,10 @@ class Evaluator {
         }.sum()
     }
 
-    private fun evaluateFor(game: Game, player: Disc): Double {
-        val ep = evaluatePlaced(game, player)
-        val ea = evaluateAvailable(game, player)
-        val ee = evaluateExposed(game, player)
+    private fun evaluateFor(phase: Phase, player: Disc): Double {
+        val ep = evaluatePlaced(phase, player)
+        val ea = evaluateAvailable(phase, player)
+        val ee = evaluateExposed(phase, player)
         return ep + ea
     }
 }

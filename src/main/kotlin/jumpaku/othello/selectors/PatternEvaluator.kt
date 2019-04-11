@@ -2,7 +2,7 @@ package jumpaku.othello.selectors
 
 import jumpaku.othello.game.Board
 import jumpaku.othello.game.Disc
-import jumpaku.othello.game.Game
+import jumpaku.othello.game.Phase
 import jumpaku.othello.game.Pos
 
 class PatternEvaluator {
@@ -14,11 +14,11 @@ class PatternEvaluator {
         private val n = '\n'
     }
 
-    fun evaluate(game: Game, focusTo: Disc): Double = when (game.state) {
-        is Game.State.Completed -> 0.0
-        is Game.State.WaitingMove -> Pos.Normalizer.values().flatMap { normalizer ->
-            val board = toString(game.board.normalize(normalizer), focusTo)
-            val onMove = focusTo == game.state.player
+    fun evaluate(phase: Phase, focusTo: Disc): Double = when (phase) {
+        is Phase.Completed -> 0.0
+        is Phase.InProgress -> Pos.Normalizer.values().flatMap { normalizer ->
+            val board = toString(phase.board.normalize(normalizer), focusTo)
+            val onMove = focusTo == phase.player
             BoardPattern.values().map { it.evaluate(board, onMove) }
         }.sum()
     }

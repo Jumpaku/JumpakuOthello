@@ -3,29 +3,6 @@ package jumpaku.othello.game
 import java.util.*
 
 @ExperimentalUnsignedTypes
-fun countBits(bits: ULong) = sequenceOf(0, 8, 16, 24, 32, 40, 48, 56)
-    .map { bitsCountTable[((bits shr it) and 0xffuL).toInt()] }.sum()
-
-private val bitsCountTable = intArrayOf(
-    0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4,
-    1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
-    1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
-    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
-    1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
-    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
-    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
-    3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
-    1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
-    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
-    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
-    3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
-    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
-    3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
-    3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
-    4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8
-)
-
-@ExperimentalUnsignedTypes
 class Board(val darkBits: ULong = 0uL, val lightBits: ULong = 0uL) {
 
     constructor(discs: Map<Pos, Disc>) : this(
@@ -42,7 +19,7 @@ class Board(val darkBits: ULong = 0uL, val lightBits: ULong = 0uL) {
         else -> null
     }
 
-    fun availablePositions(disc: Disc): Set<Pos> {
+    fun availablePos(disc: Disc): Set<Pos> {
         val opponentBoard = if (disc == Disc.Light) darkBits else lightBits
         val playerBoard = if (disc == Disc.Dark) darkBits else lightBits
 
@@ -76,7 +53,7 @@ class Board(val darkBits: ULong = 0uL, val lightBits: ULong = 0uL) {
     }
 
     fun place(pos: Pos, disc: Disc): Board {
-        require(pos in availablePositions(disc))
+        require(pos in availablePos(disc))
         val placed = pos.bits
         val playerBoard = if (disc == Disc.Dark) darkBits else lightBits
         val opponentBoard = if (disc == Disc.Light) darkBits else lightBits
