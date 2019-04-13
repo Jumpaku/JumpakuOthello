@@ -1,0 +1,9 @@
+version: '3'
+services:
+  develop:
+    build: './'
+    container_name: 'develop'
+    volumes:
+      - './:/home/app/'
+    ports:
+      - '8080:1234'

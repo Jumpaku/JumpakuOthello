@@ -27,3 +27,7 @@ hs_err_pid*
 .idea/
 build/
 out/
+src/main/web/node_modules/
+src/main/web/.cache/
+src/main/web/dist/
+src/main/web/package-lock.json
