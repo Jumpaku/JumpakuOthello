@@ -26,37 +26,30 @@ fun Move.toJson(): JsonElement = jsonObject("move" to when(this) {
 })
 
 fun Game.toJson(): JsonElement = jsonObject(
-    "board" to phase.board.run {
-        (0..63).joinToString("") {
-            when (val p = 1uL shl it) {
-                darkBits and p -> "d"
-                lightBits and p -> "l"
-                else -> "_"
+     "board" to jsonObject(
+        "darkDiscs" to jsonArray((0..63).filter { (1uL shl it) and phase.board.darkBits != 0uL }),
+        "lightDiscs" to jsonArray((0..63).filter { (1uL shl (64 - it)) and phase.board.lightBits != 0uL })
+    ),
+    "history" to jsonArray(history.mapNotNull {
+        when (it) {
+            is Move.Pass -> null
+            is Move.Place -> it.pos.row*8 + it.pos.col
+        }
+    })
+) + when (phase) {
+    is Phase.Completed -> mapOf(
+        "state" to "Completed",
+        "darkCount" to phase.darkCount,
+        "lightCount" to phase.darkCount
+    )
+    is Phase.InProgress -> mapOf(
+        "state" to "InProgress",
+        "selectPlayer" to phase.player.name,
+        "availableMoves" to jsonArray(phase.availableMoves.mapNotNull {
+            when (it) {
+                is Move.Pass -> null
+                is Move.Place -> it.pos.row * 8 + it.pos.col
             }
-        }
-    },
-    "availableMoves" to phase.availableMoves.joinToString("") {
-        when (it) {
-            is Move.Pass -> ""
-            is Move.Place -> "${it.pos.row}${it.pos.col}"
-        }
-    },
-    "history" to history.joinToString("") {
-        when (it) {
-            is Move.Pass -> ""
-            is Move.Place -> "${it.pos.row}${it.pos.col}"
-        }
-    }
-).apply {
-    this += when (phase) {
-        is Phase.Completed -> mapOf(
-            "state" to "Completed",
-            "darkCount" to phase.darkCount,
-            "lightCount" to phase.darkCount
-        )
-        is Phase.InProgress -> mapOf(
-            "state" to "InProgress",
-            "selectPlayer" to phase.player.name
-        )
-    }
+        })
+    )
 }

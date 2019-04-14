@@ -5,5 +5,4 @@ WORKDIR /home/app
 COPY ./package.json /home/app
 RUN npm install -y
 
-ENTRYPOINT [ "npm" ]
-CMD [ "start" ]
+CMD [ "ash" ]
