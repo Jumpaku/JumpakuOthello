@@ -8,6 +8,7 @@ import io.ktor.application.call
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receiveText
+import io.ktor.response.respondRedirect
 import io.ktor.response.respondText
 import io.ktor.routing.get
 import io.ktor.routing.post
@@ -15,19 +16,15 @@ import io.ktor.routing.route
 import io.ktor.routing.routing
 import jumpaku.commons.control.Failure
 import jumpaku.commons.control.Success
-import jumpaku.commons.control.result
 import jumpaku.commons.json.parseJson
-import jumpaku.othello.game.Board
-import jumpaku.othello.game.Disc
-import jumpaku.othello.game.Phase
-import jumpaku.othello.selectors.AiSelector
-import kotlin.random.Random
 
 
 fun Application.modules() = routing {
     get("/") { call.respondText(ContentType.Text.Plain, HttpStatusCode.OK) { "Jumpaku Othello\n" } }
     route("/v1/") {
-        get("/selectors/ai/move/") { call.getMoveByAiSelector() }
+        get("/") { call.respondRedirect("/api/") }
+        get("/api") { call.respondText(ContentType.Text.Plain, HttpStatusCode.OK) { "Jumpaku Othello API v1\n" } }
+        post("/ai/move/") { call.selectMoveByAi() }
         post("/games/") {
             when (call.request.queryParameters["action"]) {
                 "make" -> call.makeNewGame()
@@ -39,43 +36,27 @@ fun Application.modules() = routing {
     }
 }
 
-private suspend fun ApplicationCall.getMoveByAiSelector() {
-    val player = when (request.queryParameters["player"]) {
-        "dark" -> Disc.Dark
-        "light" -> Disc.Light
-        else -> return respondBadRequestQueryParameter("player")
-    }
-    val board = request.queryParameters["board"]?.run {
-        Board(
-            foldIndexed(0uL) { n, b, c -> b or if (c == 'd') 1uL shl n else 0uL },
-            foldIndexed(0uL) { n, b, c -> b or if (c == 'l') 1uL shl n else 0uL }
-        )
-    } ?: return respondBadRequestQueryParameter("board")
-    when (val move = result {
-        AiSelector(Random.nextInt()).select(Phase.of(board, player))
-    }) {
-        is Success -> respondText(ContentType.Application.Json, HttpStatusCode.OK) {
-            move.value.toJson().toString()
-        }
-        is Failure -> respondBadRequest(move.error.message ?: "")
+private suspend fun ApplicationCall.selectMoveByAi() {
+    when(
+        val result = receiveText().parseJson()
+            .tryFlatMap { selectorInput(it) }
+            .tryFlatMap { input -> selectMoveByAi(input) }) {
+        is Success -> respondText(ContentType.Application.Json, HttpStatusCode.OK) { result.value.toJson().toString() }
+        is Failure -> respondBadRequest(result.error.message ?: "")
     }
 }
 
 private suspend fun ApplicationCall.makeNewGame() {
-    respondText(ContentType.Application.Json, HttpStatusCode.OK) {
-        GameDatabase.make().let { gameId -> "{ \"gameId\" : \"$gameId\" }" }
-    }
+    respondText(ContentType.Application.Json, HttpStatusCode.OK) { GameDatabase.make().toJson().toString() }
 }
 
 private suspend fun ApplicationCall.getGameState() {
     when (
-        val game = receiveText().parseJson()
+        val result = receiveText().parseJson()
             .tryMap { it["gameId"].string }
             .tryFlatMap { gameId -> GameDatabase[gameId] }) {
-        is Success -> respondText(ContentType.Application.Json, HttpStatusCode.OK) {
-            game.value.toJson().toString()
-        }
-        is Failure -> respondNotFound(game.error.message ?: "")
+        is Success -> respondText(ContentType.Application.Json, HttpStatusCode.OK) { result.value.toJson().toString() }
+        is Failure -> respondNotFound(result.error.message ?: "")
     }
 }
 
@@ -84,9 +65,7 @@ private suspend fun ApplicationCall.selectMove() {
         val result = receiveText().parseJson()
             .tryFlatMap { json -> updateData(json) }
             .tryFlatMap { (gameId, move) -> GameDatabase.update(gameId, move) }) {
-        is Success -> respondText(ContentType.Application.Json, HttpStatusCode.OK) {
-            result.value.toJson().toString()
-        }
+        is Success -> respondText(ContentType.Application.Json, HttpStatusCode.OK) { result.value.toJson().toString() }
         is Failure -> respondNotFound(result.error.message ?: "")
     }
 }

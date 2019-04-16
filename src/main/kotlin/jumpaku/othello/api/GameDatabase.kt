@@ -17,21 +17,22 @@ object GameDatabase {
 
     private val games: MutableMap<String, Game> = ConcurrentHashMap()
 
-    fun make(): String = UUID.randomUUID().toString().also { gameId ->
+    fun make(): Pair<String, Game> = UUID.randomUUID().toString().let { gameId ->
         games[gameId] = Game()
+        gameId to games[gameId]!!
     }
 
-    fun update(gameId: String, move: Move): Result<Game> = result {
+    fun update(gameId: String, move: Move): Result<Pair<String, Game>> = result {
         require(gameId in games) { "specified game is not found" }
         val selector = object : Selector {
             override fun select(phase: Phase): Move = move
         }
-        games.compute(gameId) { _, g -> g?.update(selector) }!!
+        gameId to games.compute(gameId) { _, g -> g?.update(selector) }!!
     }
 
-    operator fun get(gameId: String): Result<Game> = result {
+    operator fun get(gameId: String): Result<Pair<String, Game>> = result {
         require(gameId in games) { "specified game is not found" }
-        games[gameId]!!
+        gameId to games[gameId]!!
     }
 
     fun delete(gameId: String) {

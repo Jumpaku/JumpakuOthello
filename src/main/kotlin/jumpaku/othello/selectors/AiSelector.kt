@@ -27,7 +27,7 @@ class AiSelector(seed: Int) : Selector {
         val player = phase.player
         if (ms.size == 1) return ms.first()
         if (phase.progress < 2) return ms.shuffled(random).first()
-        if (phase.progress >= 45) ms.find { isWinningGame(100, phase.move(it), player) }?.let { println("WIN");return it }
+        if (phase.progress >= 45) ms.find { isWinningGame(100, phase.move(it), player) }
         return ms.mapNotNull { it as? Move.Place }.maxBy { minmax(computeDepth(it.pos), phase.move(it), player) }!!
     }
 
