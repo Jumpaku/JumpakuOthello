@@ -1,0 +1,15 @@
+version: '3'
+
+services: 
+
+  jumpaku-othello:
+    build: ./
+    container_name: 'jumpaku-othello'
+    networks: 
+      - 'jumpaku_othello_network'
+    ports:
+      - '8080:8080'
+
+networks:
+  jumpaku_othello_network:
+    external: true

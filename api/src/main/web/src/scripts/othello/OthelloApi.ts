@@ -31,7 +31,7 @@ export type Error = {
 
 export type Response<T> = T | Error
 
-const host: string = "http://172.20.10.3:8080"
+const host: string = ""
 
 async function parseResponse(response: { json: () => any }): Promise<GamesResult> {
     const json = await (response.json() as Promise<Response<GamesResult>>)

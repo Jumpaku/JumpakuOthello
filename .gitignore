@@ -23,11 +23,16 @@
 hs_err_pid*
 
 *.DS_Store
-.gradle/
-.idea/
-build/
-out/
-src/main/web/node_modules/
-src/main/web/.cache/
-src/main/web/dist/
-src/main/web/package-lock.json
+bin/
+api/.gradle/
+api/.idea/
+api/.settings/
+api/.classpath
+api/.project
+api/build/
+api/out/
+api/bin/
+api/src/main/web/node_modules/
+api/src/main/web/.cache/
+api/src/main/web/dist/
+api/src/main/web/package-lock.json
