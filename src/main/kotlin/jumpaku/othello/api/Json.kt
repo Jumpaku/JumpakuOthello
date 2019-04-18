@@ -2,11 +2,9 @@ package jumpaku.othello.api
 
 import com.github.salomonbrys.kotson.*
 import com.google.gson.JsonElement
-import com.google.gson.JsonParser
 import jumpaku.commons.control.Result
 import jumpaku.commons.control.result
 import jumpaku.othello.game.*
-
 
 
 fun updateData(json: JsonElement): Result<UpdateData> = result {
@@ -22,8 +20,8 @@ fun updateData(json: JsonElement): Result<UpdateData> = result {
 fun selectorInput(json: JsonElement): Result<SelectorInput> = result {
     SelectorInput(Disc.valueOf(json["selectPlayer"].string), json["board"].let {
         Board(
-            it["darkDiscs"].array.fold(0uL) { d, n -> d or 1uL shl n.int },
-            it["lightDiscs"].array.fold(0uL) { d, n -> d or 1uL shl n.int }
+            it["darkDiscs"].array.fold(0uL) { d, n -> d or (1uL shl n.int) },
+            it["lightDiscs"].array.fold(0uL) { d, n -> d or (1uL shl n.int) }
         )
     })
 }
@@ -52,7 +50,7 @@ fun Game.toJson(): JsonElement = jsonObject(
     is Phase.Completed -> mapOf(
         "state" to "Completed",
         "darkCount" to phase.darkCount,
-        "lightCount" to phase.darkCount
+        "lightCount" to phase.lightCount
     )
     is Phase.InProgress -> mapOf(
         "state" to "InProgress",

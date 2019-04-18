@@ -18,7 +18,7 @@ sealed class Phase(val board: Board) {
     class InProgress(val player: Disc, board: Board) : Phase(board) {
 
         init {
-            check(board.availablePos(Disc.Dark).isNotEmpty() || board.availablePos(Disc.Light).isNotEmpty())
+            require(Disc.values().any { board.availablePos(it).isNotEmpty() })
         }
 
         val availableMoves: List<Move> by lazy {

@@ -9,7 +9,6 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.random.Random
 
-var countIsWinningGame = 0
 class AiSelector(seed: Int) : Selector {
 
     private val random = Random(seed)
@@ -22,7 +21,7 @@ class AiSelector(seed: Int) : Selector {
     }
 
     override fun select(phase: Phase): Move {
-        require(phase is Phase.InProgress)
+        require(phase is Phase.InProgress) { "phase must be InProgress" }
         val ms = phase.availableMoves
         val player = phase.player
         if (ms.size == 1) return ms.first()
@@ -31,15 +30,12 @@ class AiSelector(seed: Int) : Selector {
         return ms.mapNotNull { it as? Move.Place }.maxBy { minmax(computeDepth(it.pos), phase.move(it), player) }!!
     }
 
-    fun isWinningGame(depth: Int, phase: Phase, selectPlayer: Disc): Boolean {
-        countIsWinningGame++
-        return depth >= 0 && when (phase) {
-            is Phase.Completed -> phase.winner == selectPlayer
-            is Phase.InProgress -> when {
-                phase.board.fixedDiscs(selectPlayer).size > 32 -> true
-                phase.player == selectPlayer -> phase.availableMoves.any { isWinningGame(depth - 1, phase.move(it), selectPlayer) }
-                else -> phase.availableMoves.all { isWinningGame(depth - 1, phase.move(it), selectPlayer) }
-            }
+    private fun isWinningGame(depth: Int, phase: Phase, selectPlayer: Disc): Boolean = depth >= 0 && when (phase) {
+        is Phase.Completed -> phase.winner == selectPlayer
+        is Phase.InProgress -> when {
+            phase.board.fixedDiscs(selectPlayer).size > 32 -> true
+            phase.player == selectPlayer -> phase.availableMoves.any { isWinningGame(depth - 1, phase.move(it), selectPlayer) }
+            else -> phase.availableMoves.all { isWinningGame(depth - 1, phase.move(it), selectPlayer) }
         }
     }
 

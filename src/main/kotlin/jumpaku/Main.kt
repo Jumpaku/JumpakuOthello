@@ -2,6 +2,7 @@ package jumpaku
 
 import jumpaku.othello.game.*
 import jumpaku.othello.selectors.*
+import java.io.ByteArrayInputStream
 
 
 fun printBoard(board: Board) {
@@ -100,6 +101,6 @@ fun main() {
     println(play(
     //    InputSelector(b0), InputSelector(b1), true))
     //    AiSelector(1089), InputSelector(System.`in`), true))
-        AiSelector(1089), AiSelector(283), true))
+        AiSelector(1089), AiSelector(283), true).run { "Dark:$darkCount - Light:$lightCount" })
 }
 
