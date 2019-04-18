@@ -1,9 +1,11 @@
 version: '3'
 services:
-  develop:
+
+  debug:
     build: './'
-    container_name: 'develop'
+    container_name: 'debug'
+    command: ['npm', 'run', 'start']
     volumes:
       - './:/home/app/'
     ports:
-      - '8080:1234'
+      - '8081:80'

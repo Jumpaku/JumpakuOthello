@@ -18,7 +18,11 @@ sealed class Phase(val board: Board) {
     class InProgress(val player: Disc, board: Board) : Phase(board) {
 
         init {
-            check(board.availablePos(Disc.Dark).isNotEmpty() || board.availablePos(Disc.Light).isNotEmpty())
+            require(Disc.values().any { board.availablePos(it).isNotEmpty() })
+        }
+
+        val availableMoves: List<Move> by lazy {
+            board.availablePos(player).map { Move.Place(it) }.ifEmpty { listOf(Move.Pass) }
         }
     }
 
@@ -41,26 +45,6 @@ sealed class Phase(val board: Board) {
         val isSettled: Boolean = !isTie
     }
 
-    sealed class State {
-
-        class WaitingMove(val player: Disc) : State()
-
-        data class Completed(val darkCount: Int, val lightCount: Int): State() {
-
-            val winner: Disc? = when {
-                darkCount > lightCount -> Disc.Dark
-                darkCount < lightCount -> Disc.Light
-                else -> null
-            }
-
-            val loser: Disc? = winner?.reverse()
-
-            val isTie: Boolean = darkCount == lightCount
-
-            val isSettled: Boolean = !isTie
-        }
-    }
-
     fun move(move: Move): Phase {
         require(this is InProgress)
         require(move in availableMoves) {"not available $move"}
@@ -74,15 +58,6 @@ sealed class Phase(val board: Board) {
         }
     }
 
-    val availableMoves: List<Move> by lazy {
-        when (this) {
-            is InProgress -> {
-                val moves = board.availablePos(player).map { Move.Place(it) }
-                if (moves.isNotEmpty()) moves else listOf(Move.Pass)
-            }
-            is Completed -> emptyList()
-        }
-    }
     /**
      * the number of existing discs without initial 4 discs
      */
