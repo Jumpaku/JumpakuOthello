@@ -31,7 +31,7 @@ export type Error = {
 
 export type Response<T> = T | Error
 
-const host: string = ""
+const origin: string =  ""; /*/ // use in debug "http://localhost:8080";// */
 
 async function parseResponse(response: { json: () => any }): Promise<GamesResult> {
     const json = await (response.json() as Promise<Response<GamesResult>>)
@@ -40,7 +40,7 @@ async function parseResponse(response: { json: () => any }): Promise<GamesResult
 }
 
 export async function makeNewGame(): Promise<GamesResult> {
-    return fetch(new Request(`${host}/v1/games/?action=make`, {
+    return fetch(new Request(`${origin}/v1/games/?action=make`, {
         method: 'POST'
     })).then(parseResponse);
 }
@@ -48,7 +48,7 @@ export async function makeNewGame(): Promise<GamesResult> {
 export type GamesGetRequest = { gameId: String }
 export async function getGameState(requestData: GamesGetRequest): Promise<GamesResult> {
     console.log(requestData);
-    return fetch(new Request(`${host}/v1/games/?action=get`, {
+    return fetch(new Request(`${origin}/v1/games/?action=get`, {
         method: 'POST',
         body: JSON.stringify(requestData)
     })).then(parseResponse);
@@ -57,7 +57,7 @@ export async function getGameState(requestData: GamesGetRequest): Promise<GamesR
 export type GamesMoveRequest = { gameId: String, move: number }
 export async function selectMove(requestData: GamesMoveRequest): Promise<GamesResult> {
     console.log(requestData);
-    return fetch(new Request(`${host}/v1/games/?action=move`, {
+    return fetch(new Request(`${origin}/v1/games/?action=move`, {
         method: 'POST',
         body: JSON.stringify(requestData)
     })).then(parseResponse);
@@ -70,7 +70,7 @@ export type SelectMoveByAiRequest = {
 }
 export type SelectorResult = { move: number }
 export async function selectMoveByAi(requestData: SelectMoveByAiRequest): Promise<SelectorResult> {
-    return fetch(new Request(`${host}/v1/ai/move/`, {
+    return fetch(new Request(`${origin}/v1/ai/move/`, {
         method: 'POST',
         body: JSON.stringify(requestData)
     })).then(result => result.json().then(json => {

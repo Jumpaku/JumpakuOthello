@@ -2,17 +2,17 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
-module.exports = {
+module.exports = (env, argv) => ({
     
     entry: "./src/scripts/main.tsx",
 
     output: {
         filename: "bundle.js",
         path: path.resolve(__dirname, 'dist/'),
-        publicPath: "/"
+        publicPath: "/app/"
     },
 
-    devtool: "inline-source-map",
+    devtool: (argv.mode === "development") && "inline-source-map",
     
     resolve: {
         extensions: [".ts", ".tsx", ".js", ".jsx", ".json"]
@@ -21,7 +21,8 @@ module.exports = {
     plugins: [
         new HtmlWebpackPlugin({
             filename: "index.html",
-            template: "./src/index.html"
+            template: "./src/index.html",
+            favicon: "./assets/favicon.ico"
         }),
         new MiniCssExtractPlugin({
             // Options similar to the same options in webpackOptions.output
@@ -58,13 +59,14 @@ module.exports = {
         "react-dom": "ReactDOM"
     },
 
-    watch: true,
+    watch: argv.mode === 'development',
 
     devServer: {
         contentBase: "/home/app/dist/",
+        publicPath: "/app/",
         watchContentBase: true,
         port: 80,
         host: "0.0.0.0",
         disableHostCheck: true
     }
-};
+});

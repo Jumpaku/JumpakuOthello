@@ -50,7 +50,7 @@ class PatternEvaluator {
         ExpectCorner3(Regex("^_x+_o+(x+o.*|.*o|.*__)(\n.*){7}$"), { _, _ -> 20.0 }),
         Wing(Regex("^__x{5}_\n._x.*(\n.*){6}$"), { _, _ -> 20.0 }),
         AttackWing(Regex("^__x{5}_\n.o(o|x).*\n.(o|x){2}.*(\n.*){5}$"), { _, _ -> 40.0 }),
-        Standoff(Regex("^_o+_x+__\n._.{4}_.(\n.*){6}$"), { _, _ -> 20.0 }),
+        Standoff(Regex("^_o+_x+_\n._.{4}_.(\n.*){6}\$"), { _, _ -> 20.0 }),
         AttackStandoff(Regex("^(_o_xxxx_\n.o.*x+.*.{4}|_oo_xxx_\n.o.*x+.*.{3}|_ooo_xx_\n.o.+x+.*..|_oooo_x_\n.o..+x+.*..)(\n.*){6}$"), { s, _ ->
             10.0 * (1 + s.slice(1..6).count { it == o })
         }),
