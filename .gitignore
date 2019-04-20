@@ -21,3 +21,19 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+
+*.DS_Store
+.project
+bin/
+api/.gradle/
+api/.idea/
+api/.settings/
+api/.classpath
+api/.project
+api/build/
+api/out/
+api/bin/
+web/node_modules/
+web/.cache/
+web/dist/
+package-lock.json
