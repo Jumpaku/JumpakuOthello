@@ -7,6 +7,7 @@ import io.ktor.application.ApplicationCall
 import io.ktor.application.call
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.content.*
 import io.ktor.request.receiveText
 import io.ktor.response.respondRedirect
 import io.ktor.response.respondText
@@ -19,10 +20,10 @@ import jumpaku.commons.control.Success
 import jumpaku.commons.json.parseJson
 
 
-fun Application.modules() = routing {
+fun Application.apiModules() = routing {
     get("/") { call.respondText(ContentType.Text.Plain, HttpStatusCode.OK) { "Jumpaku Othello\n" } }
     route("/v1/") {
-        get("/") { call.respondRedirect("/api/") }
+        get("/") { call.respondRedirect("/v1/api/") }
         get("/api") { call.respondText(ContentType.Text.Plain, HttpStatusCode.OK) { "Jumpaku Othello API v1\n" } }
         post("/ai/move/") { call.selectMoveByAi() }
         post("/games/") {
