@@ -156,7 +156,7 @@ type Completed = {
 };
 ```
 
-* `state` in `Completed` represents that the game has been completed.
+* `state: "Completed"` in `Completed` represents that the game has been completed.
 * `darkCount` in `Completed` represents the number of dark discs on the board.
 * `lightCount` in `Completed` represents the number of light discs on the board.
 
@@ -168,7 +168,7 @@ type InProgress = {
 };
 ```
 
-* `state` in `InProgress` represents that the game is in progress.
+* `state: "InProgress"` in `InProgress` represents that the game is in progress.
 * `selectPlayer` in `InProgress` represents a color of the disc of player who is making a move.
 * `availableMoves` in `InProgress` represents a list of position indices where the current player can select. If there is no position to place a disc, `availableMoves` is `[-1]`.
 
@@ -191,6 +191,8 @@ type Error = {
     message: string
 };
 ```
+
+* `message` in `Error` represents error message from the API server.
 
 ```ts
 type GameStateResult = GameState | Error;
