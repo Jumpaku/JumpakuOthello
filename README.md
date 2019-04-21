@@ -26,7 +26,7 @@ services:
 
 ### Handle games
 
-|  | URI Path | Method | Request body | Response body |
+|  | URI Path | Method | Request body type | Response body type |
 |-------------------------|------------------------|--------|------------------------------------|--------------------------------------------|
 | Make a new game | `origin`/v1/games/?action=make | POST | (None) | `{ gameId: string, gameState: GameStateResult }` |
 | Get a state of the game | `origin`/v1/games/?action=get | POST | `{ gameId: string }` | `{ gameId: string, gameState: GameStateResult }` |
@@ -114,7 +114,7 @@ Response
 
 ### Get a move from AI
 
-|  | URI Path | Method | Request body | Response body |
+|  | URI Path | Method | Request body type | Response body type |
 |-------------------------|------------------------|--------|------------------------------------|--------------------------------------------|
 | Get a move from AI | `origin`/v1/ai/move | POST | `{ selectPlayer: Disc, board: Board }` | `MoveResult` |
 
