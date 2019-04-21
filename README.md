@@ -36,32 +36,80 @@ services:
 
 #### Make new game
 
+Request
+
 ```sh
 curl -X POST https://othello.jumpaku.net/v1/games/?action=make
 ```
 
-```json
+Response
 
+```json
+{
+  "gameId": "adddaabc-ccc8-4ebb-b1f4-b8b4e7e9087c",
+  "gameState": {
+    "board": {
+      "darkDiscs": [28,35],
+      "lightDiscs": [27,36]
+    },
+    "history": [],
+    "state": "InProgress",
+    "selectPlayer": "Dark",
+    "availableMoves": [19,26,37,44]
+  }
+}
 ```
 
 #### Get current game state
 
+Request
+
 ```sh
-curl -X POST https://othello.jumpaku.net/v1/games/?action=get -d "{ \"gameId\":  }"
+curl -X POST https://othello.jumpaku.net/v1/games/?action=get -d '{ "gameId": "adddaabc-ccc8-4ebb-b1f4-b8b4e7e9087c" }'
 ```
 
-```json
+Response
 
+```json
+{
+  "gameId": "adddaabc-ccc8-4ebb-b1f4-b8b4e7e9087c",
+  "gameState": {
+    "board": {
+      "darkDiscs": [28,35],
+      "lightDiscs": [27,36]
+    },
+    "history": [],
+    "state": "InProgress",
+    "selectPlayer": "Dark",
+    "availableMoves": [19,26,37,44]
+  }
+}
 ```
 
 #### Make a move
 
+Request
+
 ```sh
-curl -X POST https://othello.jumpaku.net/v1/games/?action=get -d "{ \"gameId\": , \"move\":  }"
+curl -X POST https://othello.jumpaku.net/v1/games/?action=move -d '{ "gameId": "adddaabc-ccc8-4ebb-b1f4-b8b4e7e9087c", "move": 19 }'
 ```
 
-```json
+Response
 
+```json
+{
+  "gameId": "adddaabc-ccc8-4ebb-b1f4-b8b4e7e9087c",
+  "gameState": {
+    "board": {
+      "darkDiscs": [19,27,28,35],
+      "lightDiscs": [36]
+    },
+    "history": [19],
+    "state": "InProgress",
+    "selectPlayer": "Light",
+    "availableMoves": [18,20,34]
+  }
+}
 ```
 
 ### Get a move from AI
@@ -70,12 +118,18 @@ curl -X POST https://othello.jumpaku.net/v1/games/?action=get -d "{ \"gameId\": 
 |-------------------------|------------------------|--------|------------------------------------|--------------------------------------------|
 | Get a move from AI | `origin`/v1/ai/move | POST | `{ selectPlayer: Disc, board: Board }` | `MoveResult` |
 
+Request
+
 ```sh
-curl -X POST https://othello.jumpaku.net/v1/games/?action=get -d "{ \"board\": , \"selectPlayer\": \"Dark\" }"
+curl -X POST https://othello.jumpaku.net/v1/ai/move -d '{ "board": { "darkDiscs": [19,27,28,35], "lightDiscs": [36] }, "selectPlayer": "Light" }'
 ```
 
-```json
+Response
 
+```json
+{
+  "move": 18
+}
 ```
 
 ### Definition of Types
