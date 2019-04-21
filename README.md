@@ -136,6 +136,8 @@ Response
 }
 ```
 
+If there is no position to place disc, you recieve `{ "move": -1 }`.
+
 ### Definition of Types
 
 ```ts
@@ -184,7 +186,7 @@ type GameStateBase = {
 ```
 
 * `board` in `GameStateBase` represents current board of the game.
-* `history` in `GameStateBase` represents a list of position indices where the player has been placed.
+* `history` in `GameStateBase` represents a list of position indices where the players has been placed.
 
 ```ts
 type GameState = GameStateBase & (Completed | InProgress);
