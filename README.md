@@ -8,8 +8,9 @@ https://othello.jumpaku.net/app/
 
 ## Install API server
 
-1. Execute `docker run -d -p 80:8080 jumpaku/jumpaku-othello`
-1. `jumpaku-othello` listens at `8080` port.
+1. Start server by excuting `docker run -d -p 81:8080 jumpaku/jumpaku-othello`.
+1. jumpaku-othello listens at port `8080` in the container.
+1. Access with `curl localhost:81/v1/api/` and get a response `Jumpaku Othello API v1`.
 
 Docker Hub : https://hub.docker.com/r/jumpaku/jumpaku-othello
 
