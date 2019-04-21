@@ -190,8 +190,13 @@ type Error = {
 * `message` in `Error` represents error message from the API server.
 
 ```ts
-type GameStateResult = GameState | Error;
+type GameStateResult = {
+  gameId: string,
+  gameState: GameState
+} | Error;
 ```
+
+* `gameId` identifies which game you want to handle.
 
 ```ts
 type MoveResult = { move: number } | Error;
