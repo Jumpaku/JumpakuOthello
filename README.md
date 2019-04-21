@@ -24,7 +24,7 @@ services:
 
 ## API specification
 
-### Handle games
+### Handling games
 
 |  | URI Path | Method | Request body type | Response body type |
 |-------------------------|------------------------|--------|------------------------------------|--------------------------------------------|
@@ -33,6 +33,8 @@ services:
 | Make a move | `origin`/v1/games/?action=move | POST | `{ gameId: string, move: number }` | `{ gameId: string, gameState: GameStateResult }` |
 
 `origin` is https://othello.jumpaku.net or where you installed jumpaku-othello.
+
+### Examples of handling a game
 
 #### Make new game
 
@@ -112,11 +114,13 @@ Response
 }
 ```
 
-### Get a move from AI
+### Getting a move from AI
 
 |  | URI Path | Method | Request body type | Response body type |
 |-------------------------|------------------------|--------|------------------------------------|--------------------------------------------|
 | Get a move from AI | `origin`/v1/ai/move | POST | `{ selectPlayer: Disc, board: Board }` | `MoveResult` |
+
+### Example of Getting a move from AI
 
 Request
 
