@@ -81,7 +81,7 @@ type Completed = {
     state: "Completed",
     darkCount: number,
     lightCount: number
-}
+};
 ```
 
 * `state` in `Completed` represents that the game has been completed.
