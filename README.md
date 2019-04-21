@@ -16,7 +16,7 @@ version: '3'
 services: 
 
   jumpaku-othello:
-    images: jumpaku/jumpaku-othello
+    image: jumpaku/jumpaku-othello
     container_name: 'jumpaku-othello'
 ```
 
