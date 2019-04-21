@@ -4,7 +4,23 @@ Othello game logic and AI.
 
 ## Play with example web application
 
+https://othello.jumpaku.net/app/
+
 ## Install API server
+
+docker-compose.yml
+
+```yml
+version: '3'
+
+services: 
+
+  jumpaku-othello:
+    images: jumpaku/jumpaku-othello
+    container_name: 'jumpaku-othello'
+```
+
+`jumpaku-othello` listens at `8080` port.
 
 ## API specification
 
@@ -16,10 +32,12 @@ Othello game logic and AI.
 | Get a state of the game | `origin`/v1/games/?action=get | POST | `{ gameId: string }` | `{ gameId: string, gameState: GameStateResult }` |
 | Make a move | `origin`/v1/games/?action=move | POST | `{ gameId: string, move: number }` | `{ gameId: string, gameState: GameStateResult }` |
 
+`origin` is https://othello.jumpaku.net or where you installed jumpaku-othello.
+
 #### Make new game
 
 ```sh
-
+curl -X POST https://othello.jumpaku.net/v1/games/?action=make
 ```
 
 ```json
@@ -29,7 +47,7 @@ Othello game logic and AI.
 #### Get current game state
 
 ```sh
-
+curl -X POST https://othello.jumpaku.net/v1/games/?action=get -d "{ \"gameId\":  }"
 ```
 
 ```json
@@ -39,7 +57,7 @@ Othello game logic and AI.
 #### Make a move
 
 ```sh
-
+curl -X POST https://othello.jumpaku.net/v1/games/?action=get -d "{ \"gameId\": , \"move\":  }"
 ```
 
 ```json
@@ -53,7 +71,7 @@ Othello game logic and AI.
 | Get a move from AI | `origin`/v1/ai/move | POST | `{ selectPlayer: Disc, board: Board }` | `MoveResult` |
 
 ```sh
-
+curl -X POST https://othello.jumpaku.net/v1/games/?action=get -d "{ \"board\": , \"selectPlayer\": \"Dark\" }"
 ```
 
 ```json
