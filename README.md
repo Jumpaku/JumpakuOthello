@@ -11,6 +11,8 @@ https://othello.jumpaku.net/app/
 1. Execute `docker run -d -p 80:8080 jumpaku/jumpaku-othello`
 1. `jumpaku-othello` listens at `8080` port.
 
+Docker Hub : https://hub.docker.com/r/jumpaku/jumpaku-othello
+
 ## API specification
 
 ### Handling games
