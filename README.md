@@ -8,11 +8,11 @@ https://othello.jumpaku.net/app/
 
 ## Install API server
 
-1. Start server by excuting `docker run -d -p 81:8080 jumpaku/jumpaku-othello`.
+1. Start server by executing `docker run -d -p 81:8080 jumpaku/jumpaku-othello`.
 1. jumpaku-othello listens at port `8080` in the container.
 1. Access with `curl localhost:81/v1/api/` and get a response `Jumpaku Othello API v1`.
 
-Docker Hub : https://hub.docker.com/r/jumpaku/jumpaku-othello
+Docker Hub: https://hub.docker.com/r/jumpaku/jumpaku-othello
 
 ## API specification
 
@@ -128,7 +128,7 @@ Response
 }
 ```
 
-If there is no position to place disc, you recieve `{ "move": -1 }`.
+If there is no position to place disc, you receive `{ "move": -1 }`.
 
 ### Definition of Types
 
@@ -177,8 +177,8 @@ type GameStateBase = {
 };
 ```
 
-* `board` in `GameStateBase` represents current board of the game.
-* `history` in `GameStateBase` represents a list of position indices where the players has been placed.
+* `board` in `GameStateBase` represents the current board of the game.
+* `history` in `GameStateBase` represents a list of position indices where the players have been placed.
 
 ```ts
 type GameState = GameStateBase & (Completed | InProgress);
@@ -190,7 +190,7 @@ type Error = {
 };
 ```
 
-* `message` in `Error` represents error message from the API server.
+* `message` in `Error` represents an error message from the API server.
 
 ```ts
 type GameStateResult = {
