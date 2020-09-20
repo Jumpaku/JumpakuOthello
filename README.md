@@ -14,7 +14,7 @@ https://othello.jumpaku.net/app/
 
 Docker Hub: https://hub.docker.com/r/jumpaku/jumpaku-othello
 
-## Install
+## Install without Docker
 
 ### Prerequisite
 
