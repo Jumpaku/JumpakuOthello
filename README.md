@@ -6,13 +6,47 @@ Othello game logic and AI.
 
 https://othello.jumpaku.net/app/
 
-## Install API server
+## Install with Docker
 
 1. Start server by executing `docker run -d -p 81:8080 jumpaku/jumpaku-othello`.
-1. jumpaku-othello listens at port `8080` in the container.
-1. Access with `curl localhost:81/v1/api/` and get a response `Jumpaku Othello API v1`.
+2. jumpaku-othello listens at port `8080` in the container.
+3. Access with `curl localhost:81/v1/api/` and get a response `Jumpaku Othello API v1`.
 
 Docker Hub: https://hub.docker.com/r/jumpaku/jumpaku-othello
+
+## Install
+
+### Prerequisite
+
+```sh
+apt update -y && apt install -y git npm openjdk-8-jdk
+```
+
+### Installation
+
+1. Build web resources and server by executing
+  
+```sh
+WORKDIR=$(pwd)
+# Clone repository
+git clone https://github.com/Jumpaku/JumpakuOthello.git
+# Build web resources
+cd "${WORKDIR}"/JumpakuOthello/web 
+npm install && npm run build
+cp -r "${WORKDIR}"/JumpakuOthello/web/dist "${WORKDIR}"/JumpakuOthello/api/src/main/resources/
+# Build server
+cd "${WORKDIR}"/JumpakuOthello/api/
+./gradlew build
+```
+
+2. Run the server by executing 
+
+```sh
+./gradlew run
+```
+
+3. The server listens at port `8080`.
+4. Access with `curl localhost:8080/v1/api/` and get a response `Jumpaku Othello API v1`.
 
 ## API specification
 
