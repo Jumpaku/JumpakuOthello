@@ -27,7 +27,16 @@ class AiSelector(seed: Int) : Selector {
         if (ms.size == 1) return ms.first()
         if (phase.progress < 2) return ms.shuffled(random).first()
         if (phase.progress >= 45) ms.find { isWinningGame(100, phase.move(it), player) }
-        return ms.mapNotNull { it as? Move.Place }.maxBy { minmax(computeDepth(it.pos), phase.move(it), player) }!!
+        return evaluateMoves(phase).maxBy { it.value }?.key ?: Move.Pass
+    }
+
+    fun evaluateMoves(phase: Phase): Map<Move, Double> {
+        require(phase is Phase.InProgress) { "phase must be InProgress" }
+        val ms = phase.availableMoves
+        val player = phase.player
+        return ms.mapNotNull { it as? Move.Place }
+            .map { (it as Move) to  minmax(computeDepth(it.pos), phase.move(it), player) }.toMap()
+
     }
 
     private fun isWinningGame(depth: Int, phase: Phase, selectPlayer: Disc): Boolean = depth >= 0 && when (phase) {
@@ -56,8 +65,8 @@ class AiSelector(seed: Int) : Selector {
         beta: Double = Double.MAX_VALUE
     ): Double = when (phase) {
         is Phase.Completed -> when (selectPlayer) {
-            phase?.winner -> Double.MAX_VALUE
-            phase?.loser -> Double.MIN_VALUE
+            phase.winner -> Double.MAX_VALUE
+            phase.loser -> Double.MIN_VALUE
             else -> 0.0
         }
         is Phase.InProgress -> when {
