@@ -22,7 +22,7 @@ data class EvaluatedMoves(val moves: Map<Move, Double>) {
                     is Move.Pass -> -1
                     is Move.Place -> move.pos.row * 8 + move.pos.col
                 },
-                "evaluation" to "%.3f".format(value)
+                "evaluation" to "%.3f".format(value).toDouble()
             )
         }.toJsonArray()
     )

@@ -140,13 +140,14 @@ Response
 }
 ```
 
-### Getting a move from AI
+### Inquiring to the AI
 
 |  | URI Path | Method | Request body type | Response body type |
-|-------------------------|------------------------|--------|------------------------------------|--------------------------------------------|
+|---|----------|--------|-------------------|--------------------|
 | Get a move from AI | `origin`/v1/ai/move | POST | `{ selectPlayer: Disc, board: Board }` | `MoveResult` |
+| Evaluate available moves by AI | `origin`/v1/ai/moves | POST | `{ selectPlayer: Disc, board: Board }` | `MovesResult` |
 
-### Example of Getting a move from AI
+#### Example of getting a move from AI
 
 Request
 
@@ -163,6 +164,32 @@ Response
 ```
 
 If there is no position to place disc, you receive `{ "move": -1 }`.
+
+#### Example of evaluating available moves by AI
+
+Request
+
+```sh
+curl -X POST https://othello.jumpaku.net/v1/ai/moves -d '{ "board": { "darkDiscs": [19,27,28,35], "lightDiscs": [36] }, "selectPlayer": "Light" }' 
+```
+
+Response
+
+```sh
+{
+  "moves": [
+    {
+      "move": 18, "evaluation": -20
+    }, {
+      "move": 20, "evaluation": -8.4
+    }, {
+      "move": 34, "evaluation": -1.6
+    }
+  ]
+}
+```
+
+If there is no position to place disc, you receive `{ "moves": [] }`.
 
 ### Definition of Types
 
@@ -239,3 +266,10 @@ type GameStateResult = {
 type MoveResult = { move: number } | Error;
 ```
 
+```ts
+type MovesResult = { moves: EvaluatedMove[] } | Error;
+```
+
+```ts
+type EvaluatedMove = { move: number: evaluation: number };
+```
