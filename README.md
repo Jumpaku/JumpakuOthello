@@ -273,3 +273,8 @@ type MovesResult = { moves: EvaluatedMove[] } | Error;
 ```ts
 type EvaluatedMove = { move: number: evaluation: number };
 ```
+
+## More information
+
+https://jumpaku.hatenablog.com/entry/2019/09/17/Jumpaku_Othello
+
