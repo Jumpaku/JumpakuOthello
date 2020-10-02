@@ -26,6 +26,7 @@ fun Application.apiModules() = routing {
         get("/") { call.respondRedirect("/v1/api/") }
         get("/api") { call.respondText(ContentType.Text.Plain, HttpStatusCode.OK) { "Jumpaku Othello API v1\n" } }
         post("/ai/move/") { call.selectMoveByAi() }
+        post("/ai/moves/") { call.evaluateMovesByAi() }
         post("/games/") {
             when (call.request.queryParameters["action"]) {
                 "make" -> call.makeNewGame()
@@ -42,6 +43,17 @@ private suspend fun ApplicationCall.selectMoveByAi() {
         val result = receiveText().parseJson()
             .tryFlatMap { selectorInput(it) }
             .tryFlatMap { input -> selectMoveByAi(input) }) {
+        is Success -> respondText(ContentType.Application.Json, HttpStatusCode.OK) { result.value.toJson().toString() }
+        is Failure -> respondBadRequest(result.error.message ?: "")
+    }
+}
+
+private suspend fun ApplicationCall.evaluateMovesByAi() {
+    println("OK")
+    when(
+        val result = receiveText().parseJson()
+            .tryFlatMap { selectorInput(it) }
+            .tryFlatMap { input -> evaluateMovesByAi(input) }) {
         is Success -> respondText(ContentType.Application.Json, HttpStatusCode.OK) { result.value.toJson().toString() }
         is Failure -> respondBadRequest(result.error.message ?: "")
     }
