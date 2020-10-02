@@ -189,6 +189,7 @@ Response
 }
 ```
 
+Elements in `moves` are not sorted.
 If there is no position to place disc, you receive `{ "moves": [] }`.
 
 ### Definition of Types
